@@ -1,41 +1,43 @@
 import {View, Text, TouchableOpacity, useWindowDimensions} from 'react-native';
-import React, {lazy} from 'react';
-import {IconEdit, IconRefresh} from 'tabler-icons-react-native';
+import {useContext, useState} from 'react';
 import {SceneMap, TabBar, TabView} from 'react-native-tab-view';
-import colors from '../../assets/colors';
-import {DebugInstructions} from 'react-native/Libraries/NewAppScreen';
+import colors from '../../../assets/colors';
+import Transaction from './TransactionScreen';
+import Receivable from './ReceivableScreen';
+import Debt from './DebtScreen';
+import Header, {HeaderBtn} from '../../components/Header';
+import {
+  AuthContext,
+  initAuthContext,
+} from '../../context/AuthenticationContext';
 
-const HomeScreens = () => {
-  const [index, setIndex] = React.useState(0);
-  const [routes] = React.useState([
-    {key: 'first', title: 'Transaksi'},
+const HomeScreen = () => {
+  const [index, setIndex] = useState(0);
+  const [routes] = useState([
+    {key: 'first', title: 'Transaksi', test: 'test'},
     {key: 'second', title: 'Piutang'},
     {key: 'third', title: 'Utang'},
   ]);
-  const layout = useWindowDimensions();
   const renderScene = SceneMap({
     first: Transaction,
     second: Receivable,
     third: Debt,
   });
+  const layout = useWindowDimensions();
+  const {userToken} = useContext(AuthContext) as initAuthContext;
+
   return (
     <>
-      <View className="flex flex-row py-5 bg-primary rounded-b-3xl justify-between px-5 items-center">
+      <Header>
         <TouchableOpacity>
           <Text className="font-sourceSansProSemiBold text-white bg-secondary py-2 px-6 rounded-full">
             10 - 17 Des 2023
           </Text>
         </TouchableOpacity>
-        <View className="flex flex-row gap-7 pr-3">
-          <TouchableOpacity>
-            <IconRefresh size={31} color="#fff" stroke={1.5} />
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <IconEdit size={31} color="#fff" stroke={1.5} />
-          </TouchableOpacity>
-        </View>
-      </View>
+        <HeaderBtn onRefresh={() => {}} />
+      </Header>
       <>
+        {/* Tab Area */}
         <TabView
           navigationState={{index, routes}}
           renderScene={renderScene}
@@ -48,11 +50,6 @@ const HomeScreens = () => {
   );
 };
 
-export default HomeScreens;
-
-const Transaction = () => <View style={{flex: 1, backgroundColor: '#fff'}} />;
-const Receivable = () => <View style={{flex: 1, backgroundColor: '#ddd'}} />;
-const Debt = () => <View style={{flex: 1, backgroundColor: '#aaa'}} />;
 const TabBarView = (props: any) => (
   <TabBar
     {...props}
@@ -83,3 +80,4 @@ const TabBarView = (props: any) => (
     )}
   />
 );
+export default HomeScreen;

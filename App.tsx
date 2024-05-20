@@ -1,11 +1,14 @@
-import MyTabs from './src/tabs/BottomTabs';
-import {NavigationContainer} from '@react-navigation/native';
-import React from 'react';
+import AppNav from './src/navigation/AppNavigation';
+import {AuthProvider} from './src/context/AuthenticationContext';
+import {MenuProvider} from 'react-native-popup-menu';
+
 const App = (): JSX.Element => {
   return (
-    <NavigationContainer>
-      <MyTabs />
-    </NavigationContainer>
+    <AuthProvider>
+      <MenuProvider>
+        <AppNav />
+      </MenuProvider>
+    </AuthProvider>
   );
 };
 
