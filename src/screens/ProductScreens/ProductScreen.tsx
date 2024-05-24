@@ -8,7 +8,7 @@ import {
   Alert,
 } from 'react-native';
 import ButtonOpt from '../../components/button/ButtonOption';
-import {IconSearch, IconTrash} from 'tabler-icons-react-native';
+import {IconInfoCircle, IconSearch, IconTrash} from 'tabler-icons-react-native';
 import colors from '../../../assets/colors';
 import {CardProduct} from '../../components/cards/card-product';
 import AddButton from '../../components/button/AddButton';
@@ -21,11 +21,13 @@ import Each from '../../components/Each';
 import NotFound from '../../components/NotFound';
 import useFetch from '../../hooks/useFetch';
 import useDelete from '../../hooks/useDelete';
+import ReactNativeModal from 'react-native-modal';
+import {ErrorHandler} from '../../lib/Error';
 
 export type Product = {
   id: number;
   name: string;
-  category: {name: string};
+  category: {id: number; name: string};
   basic_price: number;
   selling_price: number;
 };
@@ -35,10 +37,11 @@ const ProductScreen = () => {
   const [checkbox, setCheckbox] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const {data: products, refresh} = useFetch<Product>('api/product/list');
-  const {itemSelected, deleteItems, select, unSelect} = useDelete(
+  const {itemSelected, deleteItems, select, unSelect, deleteItem} = useDelete(
     'api/product',
     refresh,
   );
+  const [edit, setEdit] = useState<Product | null>(null);
 
   useEffect(() => {
     if (!editMode) {
@@ -49,11 +52,40 @@ const ProductScreen = () => {
     }
   }, [editMode]);
 
+  useEffect(() => {
+    !showModal && edit && setEdit(null);
+  }, [showModal]);
+
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     refresh();
     setRefreshing(false);
   }, []);
+
+  const deleteProduct = (item: Product) => {
+    Alert.alert(
+      'Hapus!!!',
+      `Apakah anda ingin menghapus produk ${item.name}?`,
+      [
+        {
+          text: 'Batal',
+          style: 'cancel',
+          onPress: () => {},
+        },
+        {
+          text: 'Hapus',
+          style: 'destructive',
+          onPress: async () => {
+            setRefreshing(true);
+            const [id, error] = await deleteItem(item.id);
+            id && refresh();
+            error && ErrorHandler(error);
+            setRefreshing(false);
+          },
+        },
+      ],
+    );
+  };
 
   const onDelete = () => {
     if (itemSelected.length == 0) return;
@@ -137,7 +169,7 @@ const ProductScreen = () => {
         }}>
         <Each<Product>
           of={products}
-          render={(item, index) => (
+          render={item => (
             <CardProduct
               key={item.id}
               checkValue={checkbox}
@@ -148,12 +180,20 @@ const ProductScreen = () => {
               onUnCheck={() => {
                 unSelect(item.id);
               }}
+              onEdit={() => {
+                console.log('edit');
+                setEdit(item);
+                setShowModal(true);
+              }}
+              onDelete={() => {
+                deleteProduct(item);
+              }}
             />
           )}
           ifNull={<NotFound>Produk tidak ditemukan {' :('}</NotFound>}
         />
       </ScrollView>
-      <ProductModal {...{setShowModal, showModal, refresh}} />
+      <ProductModal {...{setShowModal, showModal, refresh, edit}} />
     </View>
   );
 };

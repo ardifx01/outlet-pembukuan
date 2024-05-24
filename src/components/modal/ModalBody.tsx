@@ -35,9 +35,11 @@ const ModalBody = ({
 }) => {
   return (
     <ReactNativeModal
-      // style={{position: 'r'}}
       isVisible={showModal}
-      onBackdropPress={() => setShowModal(false)}
+      onBackdropPress={() => {
+        onCancel();
+        setShowModal(false);
+      }}
       onBackButtonPress={() => setShowModal(false)}
       animationInTiming={400}
       animationOutTiming={400}

@@ -6,6 +6,7 @@ import {
   Alert,
   Keyboard,
   RefreshControl,
+  Text,
 } from 'react-native';
 import {IconSearch, IconTrash, IconX} from 'tabler-icons-react-native';
 import colors from '../../../assets/colors';
@@ -23,6 +24,7 @@ import useFetch from '../../hooks/useFetch';
 import useDelete from '../../hooks/useDelete';
 import {useDebounce} from 'use-debounce';
 import {ErrorHandler} from '../../lib/Error';
+import ReactNativeModal from 'react-native-modal';
 
 const CategoryScreen = () => {
   const [showModal, setShowModal] = useState(false);
@@ -202,9 +204,7 @@ const CategoryScreen = () => {
           ifNull={<NotFound>Kategori tidak ditemukan</NotFound>}
         />
       </ScrollView>
-      {showModal && (
-        <CategoryModal {...{setShowModal, showModal, refresh, edit}} />
-      )}
+      <CategoryModal {...{setShowModal, showModal, refresh, edit}} />
     </View>
   );
 };

@@ -5,9 +5,13 @@ import {
   MenuOptions,
   MenuTrigger,
 } from 'react-native-popup-menu';
-import {IconDotsVertical} from 'tabler-icons-react-native';
+import {
+  IconDotsVertical,
+  IconEditCircle,
+  IconInfoCircle,
+  IconTrash,
+} from 'tabler-icons-react-native';
 import colors from '../../../assets/colors';
-import {Text} from 'react-native';
 
 export type PopUpMenuProps = {
   onEdit?: () => void;
@@ -33,27 +37,43 @@ const PopUpMenu = ({onEdit, onDelete, onDetail}: PopUpMenuProps) => {
           optionsWrapper: {
             position: 'absolute',
             right: 20,
-            backgroundColor: colors.border,
-            width: 120,
+            backgroundColor: 'white',
             display: 'flex',
             paddingVertical: 5,
+            paddingHorizontal: 10,
+            borderRadius: 5,
+            elevation: 3,
+            shadowColor: colors.accent,
+            flexDirection: 'row',
+            // top: 10,
+            alignContent: 'center',
+            columnGap: 5,
           },
         }}>
-        <MenuOption onSelect={onDetail}>
-          <Text className="font-sourceSansPro text-lg text-primary px-2">
-            Detail
-          </Text>
-        </MenuOption>
-        <MenuOption onSelect={onEdit}>
-          <Text className="font-sourceSansPro text-lg text-primary px-2">
-            Edit
-          </Text>
-        </MenuOption>
-        <MenuOption onSelect={onDelete}>
-          <Text className="font-sourceSansPro text-lg text-primary px-2">
-            Delete
-          </Text>
-        </MenuOption>
+        {onDetail && (
+          <MenuOption
+            customStyles={{OptionTouchableComponent: TouchableOpacity}}
+            onSelect={onDetail}>
+            <IconInfoCircle
+              color={colors.accent}
+              colorProfile={colors.accent}
+            />
+          </MenuOption>
+        )}
+        {onEdit && (
+          <MenuOption
+            onSelect={onEdit}
+            customStyles={{OptionTouchableComponent: TouchableOpacity}}>
+            <IconEditCircle color={colors.success} />
+          </MenuOption>
+        )}
+        {onDelete && (
+          <MenuOption
+            onSelect={onDelete}
+            customStyles={{OptionTouchableComponent: TouchableOpacity}}>
+            <IconTrash color={colors.err} />
+          </MenuOption>
+        )}
       </MenuOptions>
     </Menu>
   );

@@ -1,7 +1,7 @@
 import {Alert, Text, TextInput} from 'react-native';
 import ModalBody, {ModalState} from './ModalBody';
 import colors from '../../../assets/colors';
-import {Dispatch, SetStateAction, useContext, useState} from 'react';
+import {Dispatch, SetStateAction, useContext, useEffect, useState} from 'react';
 import {Category} from '../../global/types/category';
 import http from '../../lib/axios';
 import {
@@ -16,7 +16,7 @@ const CategoryModal = ({
   refresh,
   edit = null,
 }: ModalState<Category | null>) => {
-  const [category, setCategory] = useState(edit ? edit.name : '');
+  const [category, setCategory] = useState('');
   const {setIsLoading} = useContext(AuthContext) as initAuthContext;
   const createCategory = async () => {
     setIsLoading(true);
@@ -30,6 +30,10 @@ const CategoryModal = ({
       ErrorHandler(error);
     }
   };
+
+  useEffect(() => {
+    setCategory(edit?.name || '');
+  }, [edit]);
 
   const editCategory = async () => {
     if (category === edit?.name) return;
@@ -48,7 +52,7 @@ const CategoryModal = ({
   const submitHandler = async () => {
     if (!category) return;
     setShowModal(false);
-    edit ? editCategory() : createCategory();
+    edit ? await editCategory() : await createCategory();
   };
   return (
     <ModalBody

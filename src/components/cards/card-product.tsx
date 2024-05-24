@@ -3,7 +3,7 @@ import colors from '../../../assets/colors';
 import CheckBox from '@react-native-community/checkbox';
 import {useContext, useEffect, useState} from 'react';
 import {NavContext, navInitialContext} from '../../context/NavigationContext';
-import PopUpMenu from '../popup/PopUpMenu';
+import PopUpMenu, {PopUpMenuProps} from '../popup/PopUpMenu';
 
 const CardProduct = ({
   id,
@@ -14,6 +14,7 @@ const CardProduct = ({
   onCheck = () => {},
   onUnCheck = () => {},
   checkValue,
+  ...menuProps
 }: {
   id: number;
   name: string;
@@ -23,7 +24,7 @@ const CardProduct = ({
   onCheck?: () => void;
   checkValue: boolean;
   onUnCheck?: () => void;
-}) => {
+} & PopUpMenuProps) => {
   const [checkbox, setCheckbox] = useState(false);
   const {editMode} = useContext(NavContext) as navInitialContext;
   useEffect(() => {
@@ -80,7 +81,7 @@ const CardProduct = ({
             })}
           </Text>
         </View>
-        <PopUpMenu />
+        <PopUpMenu {...menuProps} />
       </View>
     </TouchableOpacity>
   );
