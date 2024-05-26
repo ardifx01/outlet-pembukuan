@@ -1,7 +1,7 @@
-import {Alert, Text, TextInput} from 'react-native';
+import {TextInput} from 'react-native';
 import ModalBody, {ModalState} from './ModalBody';
 import colors from '../../../assets/colors';
-import {Dispatch, SetStateAction, useContext, useEffect, useState} from 'react';
+import {useContext, useEffect, useState} from 'react';
 import {Category} from '../../global/types/category';
 import http from '../../lib/axios';
 import {

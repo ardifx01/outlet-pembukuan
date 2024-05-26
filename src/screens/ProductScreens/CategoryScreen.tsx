@@ -24,7 +24,6 @@ import useFetch from '../../hooks/useFetch';
 import useDelete from '../../hooks/useDelete';
 import {useDebounce} from 'use-debounce';
 import {ErrorHandler} from '../../lib/Error';
-import ReactNativeModal from 'react-native-modal';
 
 const CategoryScreen = () => {
   const [showModal, setShowModal] = useState(false);
@@ -72,7 +71,7 @@ const CategoryScreen = () => {
   const deleteCategory = (item: Category) => {
     Alert.alert(
       'Hapus!!!',
-      `Apakah anda ingin mengahpus kategori ${item.name}?`,
+      `Apakah anda ingin menghapus kategori ${item.name}?`,
       [
         {
           text: 'Batal',

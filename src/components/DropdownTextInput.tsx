@@ -26,6 +26,10 @@ const DropdownTextInput = ({
   suggestionStyle = {},
   onOpenSuggestionsList = async () => {},
   loading,
+  useFilter = true,
+  onChangeText,
+  onOpenSuggestionsListHandler,
+  stateOpen,
 }: {
   setSelect: Dispatch<SetStateAction<any>>;
   data: {id: string; title: string}[];
@@ -33,20 +37,23 @@ const DropdownTextInput = ({
   headerOffset: number;
   placeHolder?: string;
   suggestionStyle?: StyleProp<ViewStyle>;
-  onOpenSuggestionsList?: (isOpened: boolean) => void;
+  onOpenSuggestionsList?: (isOpened: boolean) => Promise<void>;
   loading?: boolean;
+  useFilter?: boolean;
+  onChangeText?: () => void;
+  onOpenSuggestionsListHandler?: (isOpened: boolean) => Promise<void>;
+  stateOpen?: [boolean, Dispatch<SetStateAction<boolean>>];
 }) => {
   const dropdownController = useRef<null | AutocompleteDropdownRef>(null);
   const searchRef = useRef<null | TextInput>(null);
-  const [isOpen, setIsOpen] = useState(false);
-
-  const onOpenSuggestionsListHandler = useCallback(
-    async (isOpened: boolean) => {
-      isOpened ? setIsOpen(true) : setIsOpen(false);
-      onOpenSuggestionsList(isOpened);
-    },
-    [],
-  );
+  // const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = stateOpen ? stateOpen : useState(false);
+  if (!onOpenSuggestionsListHandler) {
+    onOpenSuggestionsListHandler = useCallback(async (isOpened: boolean) => {
+      setIsOpen(isOpened);
+      await onOpenSuggestionsList(isOpened);
+    }, []);
+  }
 
   useEffect(() => {
     if (isOpen) {
@@ -64,9 +71,11 @@ const DropdownTextInput = ({
       clearOnFocus={false}
       dataSet={data}
       closeOnBlur
-      onSelectItem={value => value && setSelect(value.id)}
+      useFilter={useFilter}
+      onSelectItem={value => value && setSelect(value)}
       initialValue={selected}
       suggestionsListMaxHeight={200}
+      onChangeText={onChangeText}
       suggestionsListTextStyle={{
         margin: 0,
       }}
@@ -105,7 +114,6 @@ const DropdownTextInput = ({
         width: Dimensions.get('window').width * 0.92,
         marginLeft: -8,
         marginTop: 0,
-        zIndex: 50,
         ...(suggestionStyle as object),
       }}
       containerStyle={{flexGrow: 1, flexShrink: 1}}
