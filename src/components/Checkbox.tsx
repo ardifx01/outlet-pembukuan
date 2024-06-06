@@ -7,10 +7,10 @@ const SCheckbox = () => {
   return (
     <CheckBox
       style={{margin: -2}}
-      boxType="circle"
       value={checkbox}
+      boxType="circle"
       onValueChange={value => setCheckbox(value)}
-      tintColors={{true: colors.accent, false: colors.accent}}
+      tintColors={{true: colors.secondary, false: '#cacaca'}}
     />
   );
 };

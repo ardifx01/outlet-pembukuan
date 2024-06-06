@@ -30,7 +30,10 @@ const CategoryScreen = () => {
   const {editMode, setNavHide} = useContext(NavContext) as navInitialContext;
   const [checkbox, setCheckbox] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const {data: categories, refresh} = useFetch<Category>('api/category/list');
+  const {data: categories, refresh} = useFetch<Category>({
+    url: 'api/category/list',
+    setRefreshing: setRefreshing,
+  });
   const {itemSelected, deleteItems, select, unSelect, deleteItem} = useDelete(
     'api/category',
     refresh,

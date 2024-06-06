@@ -240,7 +240,7 @@ const Debt = () => {
         />
       </ScrollView>
 
-      <DebtModal {...{setShowModal, showModal}} />
+      {/* <DebtModal {...{setShowModal, showModal}} /> */}
     </View>
   );
 };

@@ -1,29 +1,31 @@
-export type sale = {
+export type sale<T = string> = {
   id: number;
   name: string;
   category: string;
   basic_price: number;
   selling_price: number;
-  created_at: string;
-  type?: 'sale';
+  created_at: T;
+  type: 'sale';
   receivable?: {
+    id: number;
     total: number;
     note: string;
     paid: boolean;
   };
 };
 
-export type expense = {
+export type expense<T = string> = {
   id: number;
   name: string;
   total: number;
-  type?: 'expense';
+  type: 'expense';
   debt?: {
+    id: number;
     total: number;
     note: string;
     paid: boolean;
   };
-  created_at: string;
+  created_at: T;
 };
 
-export type transaction = sale[] |   expense[];
+export type transaction<T = string> = sale<T> | expense<T>;

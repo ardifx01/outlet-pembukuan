@@ -24,7 +24,7 @@ const ModalBody = ({
   edit = false,
 }: {
   showModal: boolean;
-  setShowModal: Dispatch<SetStateAction<boolean>>;
+  setShowModal: (show: boolean) => void | Dispatch<SetStateAction<boolean>>;
   title?: string;
   children: ReactNode;
   onSubmit: () => void;

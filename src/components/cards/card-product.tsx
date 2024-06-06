@@ -35,7 +35,6 @@ const CardProduct = ({
   }, [checkbox]);
   const select = () => {
     setCheckbox(checkbox => !checkbox);
-    console.log(checkbox);
   };
   return (
     <TouchableOpacity

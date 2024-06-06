@@ -36,7 +36,8 @@ const useDelete = (url: string, onSuccess: () => void = () => {}) => {
     }
   };
 
-  const deleteItems = async () => {
+  const deleteItems = async (alert: boolean = true) => {
+    if (itemSelected.length == 0) return;
     setIsLoading(true);
 
     const error: string[] = [];
@@ -50,12 +51,14 @@ const useDelete = (url: string, onSuccess: () => void = () => {}) => {
     if (deleted.length != 0) {
       onSuccess();
     }
-    if (error.length != 0) {
-      Alert.alert('Error', error.join('\n'));
-    }
     setItemSelected(itemSelected =>
       itemSelected.filter(id => !deleted.includes(id)),
     );
+    if (error.length != 0 && alert) {
+      Alert.alert('Error', error.join('\n'));
+    } else if (!alert) {
+      return error;
+    }
   };
   return {itemSelected, deleteItems, deleteItem, unSelect, select};
 };

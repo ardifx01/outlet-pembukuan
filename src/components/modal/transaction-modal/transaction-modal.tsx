@@ -42,7 +42,7 @@ const TrxModal = (): JSX.Element => {
       swipeDirection={[]}
       className="m-0 justify-end">
       <View
-        className="h-[600px] max-h-full bg-white rounded-t-[40px] px-3 min-w-full"
+        className="h-[609px] max-h-full bg-white rounded-t-[40px] px-3 min-w-full"
         onLayout={e => {
           setHeaderOffset(e.nativeEvent.layout.y + 68);
         }}>

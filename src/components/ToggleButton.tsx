@@ -8,7 +8,7 @@ const ToggleButton = ({
   setToggle,
 }: {
   toggle: boolean;
-  setToggle: Dispatch<SetStateAction<boolean>>;
+  setToggle: (state: boolean) => void | Dispatch<SetStateAction<boolean>>;
 }) => {
   const moveValue = useRef(new Animated.Value(0)).current;
   useEffect(() => {

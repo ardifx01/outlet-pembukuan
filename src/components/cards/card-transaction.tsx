@@ -1,8 +1,13 @@
 import CheckBox from '@react-native-community/checkbox';
 import {useContext, useEffect, useState} from 'react';
-import {Text, View} from 'react-native';
+import {Text, TouchableOpacity, View} from 'react-native';
 import colors from '../../../assets/colors';
 import {NavContext, navInitialContext} from '../../context/NavigationContext';
+import currency from '../../lib/currency';
+import PopUpMenu, {PopUpMenuProps} from '../popup/PopUpMenu';
+import {IconBrandCashapp} from 'tabler-icons-react-native';
+
+import {timeFormat} from '../../lib/time';
 
 const CardSale = ({
   id,
@@ -11,31 +16,48 @@ const CardSale = ({
   created_at,
   basic_price,
   selling_price,
-  onCheck,
-  onUnCheck,
+  onCheck = () => {},
+  onUnCheck = () => {},
   checkValue,
+  receivable,
+  ...popMenu
 }: {
   id: number;
   name: string;
   category: string;
-  created_at: string;
+  created_at: number;
   basic_price: number;
   selling_price: number;
-  onCheck?: () => void;
-  onUnCheck?: () => void;
+  receivable?: {
+    total: number;
+    note: string;
+    paid: boolean;
+  };
+  onCheck?: (id: number) => void;
+  onUnCheck?: (id: number) => void;
   checkValue: boolean;
-}) => {
+} & PopUpMenuProps) => {
   const [checkbox, setCheckbox] = useState(false);
   const {editMode} = useContext(NavContext) as navInitialContext;
   useEffect(() => {
     setCheckbox(checkValue);
   }, [checkValue]);
 
+  useEffect(() => {
+    checkbox ? onCheck(id) : onUnCheck(id);
+  }, [checkbox]);
+  const select = () => {
+    setCheckbox(checkbox => !checkbox);
+  };
+
+  const timeStamp = timeFormat(created_at);
+
   return (
-    <View
-      key={id}
+    <TouchableOpacity
+      disabled={!editMode}
+      onPress={select}
       id="card-sale"
-      className="flex flex-row justify-between px-4 py-1 bg-blue-100 mb-2 rounded-md mx-2">
+      className="flex flex-row justify-between pl-4 pr-2 py-1 bg-blue-100 mb-2 rounded-md mx-2">
       <View className="flex-row items-center">
         {editMode && (
           <View className="-ml-3">
@@ -44,7 +66,6 @@ const CardSale = ({
               tintColors={{true: colors.secondary, false: colors.secondary}}
               onValueChange={value => {
                 setCheckbox(value);
-                value ? onCheck : onUnCheck;
               }}
             />
           </View>
@@ -58,25 +79,34 @@ const CardSale = ({
           </Text>
         </View>
       </View>
-      <View className="flex">
-        <Text className="font-sourceSansProSemiBold text-base text-primary self-end">
-          {created_at}
-        </Text>
-        <View className="self-end flex flex-row text-base">
-          <Text className="text-base font-sourceSansProSemiBold text-secondary">
-            {selling_price}
-            {' - '}
+      <View className="flex-row items-center">
+        <View className="flex">
+          <Text className="font-sourceSansProSemiBold text-base text-primary self-end">
+            {timeStamp}
           </Text>
-          <Text className="text-base font-sourceSansProSemiBold text-err">
-            {basic_price}
-            {' = '}
-          </Text>
-          <Text className="text-base font-sourceSansProSemiBold text-emerald-600">
-            {selling_price - basic_price}
-          </Text>
+          <View className="self-end flex flex-row text-base items-center">
+            {receivable && (
+              <IconBrandCashapp
+                color={receivable.paid ? colors.success : colors.err}
+                size={20}
+              />
+            )}
+            <Text className="text-base font-sourceSansProSemiBold text-secondary">
+              {currency(selling_price)}
+            </Text>
+            <Text className="text-base font-sourceSansProSemiBold text-err">
+              {' - '}
+              {currency(basic_price)}
+            </Text>
+            <Text className="text-base font-sourceSansProSemiBold text-emerald-600">
+              {' = '}
+              {currency(selling_price - basic_price)}
+            </Text>
+          </View>
         </View>
+        <PopUpMenu {...popMenu} />
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 
@@ -85,28 +115,47 @@ const CardExpense = ({
   name,
   total,
   created_at,
-  onCheck,
-  onUnCheck,
+  onCheck = () => {},
+  onUnCheck = () => {},
   checkValue,
+  debt,
+  ...popMenu
 }: {
   id: number;
   name: string;
   total: number;
-  created_at: string;
-  onCheck?: () => void;
-  onUnCheck?: () => void;
+  created_at: number;
+  debt?: {
+    note: string;
+    total: number;
+    paid: boolean;
+  };
+  onCheck?: (id: number) => void;
+  onUnCheck?: (id: number) => void;
   checkValue: boolean;
-}) => {
+} & PopUpMenuProps) => {
   const [checkbox, setCheckbox] = useState(checkValue);
   const {editMode} = useContext(NavContext) as navInitialContext;
 
   useEffect(() => {
     setCheckbox(checkValue);
   }, [checkValue]);
+
+  useEffect(() => {
+    checkbox ? onCheck(id) : onUnCheck(id);
+  }, [checkbox]);
+  const select = () => {
+    setCheckbox(checkbox => !checkbox);
+  };
+
+  const timeStamp = timeFormat(created_at);
+
   return (
-    <View
+    <TouchableOpacity
+      disabled={!editMode}
+      onPress={select}
       id="card-expense"
-      className="flex flex-row justify-between px-4 py-1 bg-red-100 mb-2 mx-2 rounded-md">
+      className="flex flex-row justify-between pl-4 pr-2 py-1 bg-red-100 mb-2 mx-2 rounded-md">
       <View>
         <View className="flex-row items-center">
           {editMode && (
@@ -116,7 +165,6 @@ const CardExpense = ({
                 value={checkbox}
                 onValueChange={value => {
                   setCheckbox(value);
-                  value ? onCheck : onUnCheck;
                 }}
               />
             </View>
@@ -125,21 +173,33 @@ const CardExpense = ({
             <Text className="font-sourceSansProSemiBold text-base text-primary">
               {name}
             </Text>
+            <Text className="text-base font-sourceSansPro text-err">
+              Pengeluaran
+            </Text>
           </View>
         </View>
       </View>
-      <View className="flex">
-        <Text className="font-sourceSansProSemiBold text-base text-primary self-end">
-          {created_at}
-        </Text>
-        <View className="self-end flex flex-row text-base">
-          <Text className="text-base font-sourceSansProSemiBold text-err">
-            {' - '}
-            {total}
+      <View className="flex-row items-center">
+        <View className="flex">
+          <Text className="font-sourceSansProSemiBold text-base text-primary self-end">
+            {timeStamp}
           </Text>
+          <View className="self-end flex flex-row items-center">
+            {debt && (
+              <IconBrandCashapp
+                color={debt.paid ? colors.success : colors.err}
+                size={20}
+              />
+            )}
+            <Text className="text-base font-sourceSansProSemiBold text-err">
+              {' - '}
+              {currency(total)}
+            </Text>
+          </View>
         </View>
+        <PopUpMenu {...popMenu} />
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 export {CardSale, CardExpense};

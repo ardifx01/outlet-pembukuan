@@ -11,7 +11,6 @@ import {
 import {Dimensions, StyleProp, Text, TextInput, ViewStyle} from 'react-native';
 import {
   AutocompleteDropdown,
-  AutocompleteDropdownContextProvider,
   AutocompleteDropdownRef,
 } from 'react-native-autocomplete-dropdown';
 import colors from '../../assets/colors';
@@ -28,11 +27,13 @@ const DropdownTextInput = ({
   loading,
   useFilter = true,
   onChangeText,
-  onOpenSuggestionsListHandler,
-  stateOpen,
+  debounce,
+  emptyRes = 'Tidak ditemukan',
+  showChevron = true,
+  fixOpenSuggestion = true,
 }: {
   setSelect: Dispatch<SetStateAction<any>>;
-  data: {id: string; title: string}[];
+  data: {id: string; title: string}[] | null;
   selected: string;
   headerOffset: number;
   placeHolder?: string;
@@ -40,23 +41,24 @@ const DropdownTextInput = ({
   onOpenSuggestionsList?: (isOpened: boolean) => Promise<void>;
   loading?: boolean;
   useFilter?: boolean;
-  onChangeText?: () => void;
-  onOpenSuggestionsListHandler?: (isOpened: boolean) => Promise<void>;
-  stateOpen?: [boolean, Dispatch<SetStateAction<boolean>>];
+  onChangeText?: (text: string) => void;
+  debounce?: number;
+  emptyRes?: string;
+  showChevron?: boolean;
+  fixOpenSuggestion?: boolean;
 }) => {
   const dropdownController = useRef<null | AutocompleteDropdownRef>(null);
   const searchRef = useRef<null | TextInput>(null);
-  // const [isOpen, setIsOpen] = useState(false);
-  const [isOpen, setIsOpen] = stateOpen ? stateOpen : useState(false);
-  if (!onOpenSuggestionsListHandler) {
-    onOpenSuggestionsListHandler = useCallback(async (isOpened: boolean) => {
-      setIsOpen(isOpened);
-      await onOpenSuggestionsList(isOpened);
-    }, []);
-  }
-
+  const [isOpen, setIsOpen] = useState(false);
+  const onOpenSuggestionsListHandler = async (isOpened: boolean) => {
+    setIsOpen(isOpened);
+    await onOpenSuggestionsList(isOpened);
+  };
+  useEffect(() => {}, [emptyRes]);
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && fixOpenSuggestion) {
+      dropdownController.current?.close();
+    } else if (isOpen) {
       dropdownController.current?.close();
       dropdownController.current?.open();
     }
@@ -70,7 +72,8 @@ const DropdownTextInput = ({
       direction="down"
       clearOnFocus={false}
       dataSet={data}
-      closeOnBlur
+      closeOnBlur={true}
+      debounce={debounce}
       useFilter={useFilter}
       onSelectItem={value => value && setSelect(value)}
       initialValue={selected}
@@ -117,6 +120,7 @@ const DropdownTextInput = ({
         ...(suggestionStyle as object),
       }}
       containerStyle={{flexGrow: 1, flexShrink: 1}}
+      showChevron={showChevron}
       ChevronIconComponent={
         <IconChevronDown size={23} color={colors.secondary} />
       }
@@ -124,6 +128,7 @@ const DropdownTextInput = ({
       onClear={() => {
         setSelect('');
       }}
+      emptyResultText={emptyRes}
     />
   );
 };

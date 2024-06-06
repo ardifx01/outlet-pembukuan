@@ -9,6 +9,7 @@ const colors = {
   placeholder: '#5A719D',
   border: '#E6EEFF',
   success: '#10b986',
+  warning: '#ffc107',
 };
 
 export default colors;

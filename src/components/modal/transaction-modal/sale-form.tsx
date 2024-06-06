@@ -7,7 +7,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import {Text, TextInput, View} from 'react-native';
+import {Alert, Text, TextInput, View} from 'react-native';
 import {
   AutocompleteDropdown,
   AutocompleteDropdownContextProvider,
@@ -34,21 +34,51 @@ import {Product} from '../../../screens/ProductScreens/ProductScreen';
 import http from '../../../lib/axios';
 import responseHandler from '../../../lib/responseHandler';
 import {ErrorHandler} from '../../../lib/Error';
-type Suggestions = {id: string; title: string};
+import DropdownComponent from '../../DropdownElement';
+import currency from '../../../lib/currency';
+import {
+  AuthContext,
+  initAuthContext,
+} from '../../../context/AuthenticationContext';
+export type Suggestions = {
+  id: string;
+  title: string;
+  basic_price?: number;
+  selling_price?: number;
+  category?: string;
+};
 const SaleForm = ({headerOffset}: {headerOffset: number}) => {
-  const [category, setCategory] = useState('');
-  const [product, setProduct] = useState('');
+  const [category, setCategory] = useState<string | null>(null);
+  const [product, setProduct] = useState<Suggestions | null>(null);
+  const [receivable, setReceivable] = useState<{
+    note: string;
+    total: number;
+  }>({note: '', total: 0});
   const [toggle, setToggle] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const {setShowModal} = useContext(TrxModalContext) as TrxModalInitialContext;
-
+  const [loading, setLoading] = useState(false);
+  const [emptyRes, setEmptyRes] = useState('Tidak ditemukan');
+  const [validation, setValidation] = useState<string | null>(null);
+  const [dropdownTextInput, setDropdownTextInput] = useState<string>('');
+  const {setShowModal, refresh} = useContext(
+    TrxModalContext,
+  ) as TrxModalInitialContext;
+  const {setIsLoading} = useContext(AuthContext) as initAuthContext;
   const [categoriesSuggestions, setCategoriesSuggestions] = useState<
     Suggestions[]
   >([]);
-  const [productSuggestions, setProductSuggestions] = useState<Suggestions[]>(
-    [],
-  );
-  const getCategorySuggestions = async () => {
+  const [productSuggestions, setProductSuggestions] = useState<
+    Suggestions[] | null
+  >([]);
+  useEffect(() => {
+    if (category) {
+      setEmptyRes('Tidak ditemukan');
+    } else {
+      setEmptyRes('Pilih Kategori terlebih dulu');
+    }
+    setProductSuggestions(null);
+  }, [category]);
+  const getCategorySuggestions = useCallback(async () => {
+    setLoading(true);
     try {
       const res = await http.get('api/category/list');
       responseHandler(res, data => {
@@ -56,134 +86,227 @@ const SaleForm = ({headerOffset}: {headerOffset: number}) => {
           id: item.id,
           title: item.name,
         }));
+        setLoading(false);
         setCategoriesSuggestions(suggesstions);
       });
     } catch (err) {
-      setIsLoading(false);
+      setLoading(false);
       ErrorHandler(err);
     }
-  };
-  const getProductSuggestions = async () => {
+  }, []);
+  const getProductSuggestions = useCallback(
+    async (search: string) => {
+      setDropdownTextInput(search);
+      if (!category || search.length < 2) return;
+      setLoading(true);
+      try {
+        const res = await http.get('api/product/list', {
+          params: {
+            filter: [category],
+            search,
+          },
+        });
+        responseHandler(res, data => {
+          console.log(data);
+          const suggesstions = data.map((item: any) => ({
+            id: item.id,
+            title: item.name,
+            basic_price: item.basic_price,
+            selling_price: item.selling_price,
+            category: item.category.name,
+          }));
+          setLoading(false);
+          setProductSuggestions(suggesstions);
+        });
+      } catch (err) {
+        setLoading(false);
+        ErrorHandler(err);
+      }
+    },
+    [category],
+  );
+
+  useEffect(() => {
+    console.log(dropdownTextInput);
+  }, [dropdownTextInput]);
+
+  const onSubmit = async () => {
+    if (
+      !product ||
+      (!product.title && !dropdownTextInput) ||
+      !product.basic_price ||
+      (!product.category && !category) ||
+      !product.selling_price ||
+      (toggle && (!receivable.note || !receivable.total))
+    ) {
+      console.log(product);
+      setValidation('silahkan isi semua form');
+      return;
+    }
+    !product.title && dropdownTextInput
+      ? console.log(dropdownTextInput)
+      : console.log(product.title);
+    const transaction = {
+      name: product.title || dropdownTextInput,
+      category: product.category || category,
+      basic_price: product.basic_price,
+      selling_price: product.selling_price,
+      receivable: toggle ? receivable : null,
+    };
+    setShowModal(false);
+    setIsLoading(true);
     try {
-      const res = await http.get('api/product/list');
-      responseHandler(res, data => {
-        const suggesstions = data.map((item: any) => ({
-          id: item.id,
-          title: item.name,
-        }));
-        setProductSuggestions(suggesstions);
-      });
-    } catch (err) {
+      await http.post('api/transaction/sale', transaction);
+      refresh();
       setIsLoading(false);
-      ErrorHandler(err);
+    } catch (error) {
+      setIsLoading(false);
+      ErrorHandler(error);
     }
   };
+
+  useEffect(() => {
+    setValidation(null);
+  }, [toggle]);
+
   useEffect(() => {
     getCategorySuggestions();
   }, [getCategorySuggestions]);
-  useEffect(() => {
-    getProductSuggestions();
-  }, [getProductSuggestions]);
 
-  const onOpenCategorySuggestionsList = useCallback(
-    async (isOpened: boolean) => {
-      console.log(isOpened);
-      if (isOpened) await getCategorySuggestions();
-    },
-    [],
-  );
-  const onOpenProductSuggestionsList = useCallback(
-    async (isOpened: boolean) => {
-      if (isOpened) await getProductSuggestions();
-    },
-    [],
-  );
   return (
     <View className="bg-white justify-between pb-3 flex-1">
-      <View>
-        <AutocompleteDropdownContextProvider {...{headerOffset}}>
+      <AutocompleteDropdownContextProvider {...{headerOffset}}>
+        <View>
           <Text className="mt-2 font-sourceSansProSemiBold text-base pl-2 text-accent">
             Kategori
           </Text>
-          <DropdownTextInput
-            suggestionStyle={{
-              position: 'absolute',
-              zIndex: 999,
-            }}
-            onOpenSuggestionsList={onOpenCategorySuggestionsList}
-            headerOffset={headerOffset}
-            placeHolder="Pilih Kategori"
-            selected={category}
-            setSelect={setCategory}
+          <DropdownComponent
             data={categoriesSuggestions}
-            key={1}
+            value={product?.category || category}
+            setValue={setCategory}
           />
-        </AutocompleteDropdownContextProvider>
-        <AutocompleteDropdownContextProvider {...{headerOffset}}>
           <Text className="mt-2 font-sourceSansProSemiBold text-base pl-2 text-accent">
             Produk
           </Text>
           <DropdownTextInput
-            onOpenSuggestionsList={onOpenProductSuggestionsList}
+            emptyRes={emptyRes}
             headerOffset={headerOffset}
-            selected={product}
+            selected={product?.id || ''}
+            onChangeText={getProductSuggestions}
             setSelect={setProduct}
             data={productSuggestions}
             placeHolder="Pilih Produk"
-            key={2}
+            useFilter={false}
+            debounce={1500}
+            fixOpenSuggestion={false}
+            loading={loading}
           />
-        </AutocompleteDropdownContextProvider>
-        <View className="flex flex-row justify-between mt-2 ">
-          <View className="w-[48%] justify-center flex items-center">
-            <Text className="font-sourceSansProSemiBold text-base text-accent">
-              Modal
-            </Text>
-            <View className=" mt-1 w-full flex-row items-center gap-1">
-              <Text className="font-sourceSansProSemiBold text-base text-primary">
-                Rp.
+          <View className="flex flex-row justify-between mt-2 ">
+            <View className="w-[48%] justify-center flex items-center">
+              <Text className="font-sourceSansProSemiBold text-base text-accent">
+                Modal
               </Text>
-              <TextInput className="bg-border py-1 px-3 rounded-md w-[75%] text-accent font-sourceSansProSemiBold text-base" />
+              <View className=" mt-1 w-full flex-row items-center gap-1">
+                <Text className="font-sourceSansProSemiBold text-base text-primary">
+                  Rp.
+                </Text>
+                <TextInput
+                  value={
+                    product?.basic_price ? currency(product.basic_price) : ''
+                  }
+                  onChangeText={text => {
+                    const basic_price: number = parseInt(
+                      text.replace(/[^0-9]/g, '').slice(0, 9),
+                    );
+                    setProduct(product => ({
+                      ...(product as Suggestions),
+                      basic_price,
+                    }));
+                  }}
+                  inputMode="numeric"
+                  className="bg-border py-1 px-3 rounded-md w-[75%] text-accent font-sourceSansProSemiBold text-base"
+                />
+              </View>
+            </View>
+            <View className="w-[48%] flex justify-end">
+              <Text className="font-sourceSansProSemiBold text-base text-accent self-center pl-8">
+                Harga
+              </Text>
+              <View className=" mt-1 w-full flex-row flex items-center gap-1 justify-end">
+                <Text className="font-sourceSansProSemiBold text-base text-primary">
+                  Rp.
+                </Text>
+                <TextInput
+                  value={
+                    product?.selling_price
+                      ? currency(product.selling_price)
+                      : ''
+                  }
+                  onChangeText={text => {
+                    const selling_price: number = parseInt(
+                      text.replace(/[^0-9]/g, '').slice(0, 9),
+                    );
+                    setProduct(product => ({
+                      ...(product as Suggestions),
+                      selling_price,
+                    }));
+                  }}
+                  inputMode="numeric"
+                  className="bg-border py-1 px-3 rounded-md w-[75%] text-accent font-sourceSansProSemiBold text-base"
+                />
+              </View>
             </View>
           </View>
-          <View className="w-[48%] flex justify-end">
-            <Text className="font-sourceSansProSemiBold text-base text-accent self-center pl-8">
-              Harga
+          <View className="mt-3 flex-row flex items-center">
+            <Text className="font-sourceSansProSemiBold text-base pl-2 text-accent mr-4">
+              Piutang
             </Text>
-            <View className=" mt-1 w-full flex-row flex items-center gap-1 justify-end">
-              <Text className="font-sourceSansProSemiBold text-base text-primary">
-                Rp.
+            <ToggleButton {...{setToggle, toggle}} />
+          </View>
+          {toggle && (
+            <View className="p-2 border-placeholder/40 border-dashed border-2 mt-3 ">
+              <Text className="font-sourceSansProSemiBold text-base pl-2 text-accent mr-4">
+                Catatan
               </Text>
-              <TextInput className="bg-border py-1 px-3 rounded-md w-[75%] text-accent font-sourceSansProSemiBold text-base" />
+              <TextInput
+                onChangeText={text => {
+                  setReceivable(receivable => ({...receivable, note: text}));
+                }}
+                value={receivable.note}
+                multiline={true}
+                numberOfLines={3}
+                style={{textAlignVertical: 'top'}}
+                className="bg-border px-3 rounded-md text-accent font-sourceSansProSemiBold text-base"
+              />
+              <Text className="font-sourceSansProSemiBold text-base pl-2 text-accent mr-4">
+                Total
+              </Text>
+              <TextInput
+                onChangeText={text => {
+                  const total: number = parseInt(
+                    text.replace(/[^0-9]/g, '').slice(0, 9),
+                  );
+                  setReceivable(receivable => {
+                    return {
+                      ...receivable,
+                      total,
+                    };
+                  });
+                }}
+                value={receivable.total ? currency(receivable.total) : ''}
+                inputMode="numeric"
+                className="bg-border px-3 py-1 rounded-md text-accent font-sourceSansProSemiBold text-base"
+              />
             </View>
-          </View>
-        </View>
-        <View className="mt-3 flex-row flex items-center">
-          <Text className="font-sourceSansProSemiBold text-base pl-2 text-accent mr-4">
-            Piutang
-          </Text>
-          <ToggleButton {...{setToggle, toggle}} />
-        </View>
-        {toggle && (
-          <View className="p-2 border-placeholder/40 border-dashed border-2 mt-3 ">
-            <Text className="font-sourceSansProSemiBold text-base pl-2 text-accent mr-4">
-              Catatan
+          )}
+          {validation && (
+            <Text className="font-sourceSansPro text-err mx-auto mt-2 -mb-1">
+              {validation}
             </Text>
-            <TextInput
-              multiline={true}
-              numberOfLines={3}
-              style={{textAlignVertical: 'top'}}
-              className="bg-border px-3 rounded-md text-accent font-sourceSansProSemiBold text-base"
-            />
-            <Text className="font-sourceSansProSemiBold text-base pl-2 text-accent mr-4">
-              Total
-            </Text>
-            <TextInput
-              inputMode="numeric"
-              className="bg-border px-3 py-1 rounded-md text-accent font-sourceSansProSemiBold text-base"
-            />
-          </View>
-        )}
-      </View>
+          )}
+        </View>
+      </AutocompleteDropdownContextProvider>
+
       <View className="flex flex-row justify-around mt-3 w-full">
         <Button
           icon={<IconX size={20} color={colors.primary} />}
@@ -196,7 +319,7 @@ const SaleForm = ({headerOffset}: {headerOffset: number}) => {
         </Button>
         <Button
           icon={<IconCheck size={20} color={'white'} />}
-          onPress={() => {}}
+          onPress={onSubmit}
           classname="bg-accent w-[45%]"
           textColor={'white'}>
           Tambahkan

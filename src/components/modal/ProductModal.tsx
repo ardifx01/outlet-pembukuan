@@ -27,6 +27,7 @@ import {
   initAuthContext,
 } from '../../context/AuthenticationContext';
 import {Product} from '../../screens/ProductScreens/ProductScreen';
+import DropdownComponent from '../DropdownElement';
 
 type suggesstionsItem = {id: string; title: string};
 type ProductInput = {
@@ -79,8 +80,6 @@ const ProductModal = ({
           }
         : null,
     );
-    console.log(edit);
-    console.log(suggestionsList);
   }, [edit]);
 
   const onOpenSuggestionsList = async (isOpened: boolean) => {
@@ -88,10 +87,10 @@ const ProductModal = ({
       await getSuggestionsLists();
     }
   };
-  const setCategory = (category: string) => {
+  const setCategory = (category: {id: string} | null) => {
     setProduct(product => ({
       ...(product as ProductInput),
-      category_id: parseInt(category),
+      category_id: parseInt(category?.id as string),
     }));
   };
 

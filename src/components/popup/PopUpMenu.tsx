@@ -17,9 +17,19 @@ export type PopUpMenuProps = {
   onEdit?: () => void;
   onDetail?: () => void;
   onDelete?: () => void;
+  iconEdit?: JSX.Element;
+  iconDetail?: JSX.Element;
+  iconDelete?: JSX.Element;
 };
 
-const PopUpMenu = ({onEdit, onDelete, onDetail}: PopUpMenuProps) => {
+const PopUpMenu = ({
+  onEdit,
+  onDelete,
+  onDetail,
+  iconDelete,
+  iconDetail,
+  iconEdit,
+}: PopUpMenuProps) => {
   return (
     <Menu>
       <MenuTrigger
@@ -54,24 +64,21 @@ const PopUpMenu = ({onEdit, onDelete, onDetail}: PopUpMenuProps) => {
           <MenuOption
             customStyles={{OptionTouchableComponent: TouchableOpacity}}
             onSelect={onDetail}>
-            <IconInfoCircle
-              color={colors.accent}
-              colorProfile={colors.accent}
-            />
+            {iconDetail || <IconInfoCircle color={colors.accent} />}
           </MenuOption>
         )}
         {onEdit && (
           <MenuOption
             onSelect={onEdit}
             customStyles={{OptionTouchableComponent: TouchableOpacity}}>
-            <IconEditCircle color={colors.success} />
+            {iconEdit || <IconEditCircle color={colors.success} />}
           </MenuOption>
         )}
         {onDelete && (
           <MenuOption
             onSelect={onDelete}
             customStyles={{OptionTouchableComponent: TouchableOpacity}}>
-            <IconTrash color={colors.err} />
+            {iconDelete || <IconTrash color={colors.err} />}
           </MenuOption>
         )}
       </MenuOptions>

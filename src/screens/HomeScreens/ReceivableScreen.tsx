@@ -263,7 +263,7 @@ const Receivable = () => {
           total={8000}
         />
       </ScrollView>
-      <ReceivableModal {...{setShowModal, showModal}} />
+      {/* <ReceivableModal {...{setShowModal, showModal}} /> */}
     </View>
   );
 };

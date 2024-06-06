@@ -8,7 +8,14 @@ import {
   Alert,
 } from 'react-native';
 import ButtonOpt from '../../components/button/ButtonOption';
-import {IconInfoCircle, IconSearch, IconTrash} from 'tabler-icons-react-native';
+import {
+  IconAdjustments,
+  IconFilter,
+  IconInfoCircle,
+  IconSearch,
+  IconTrash,
+  IconX,
+} from 'tabler-icons-react-native';
 import colors from '../../../assets/colors';
 import {CardProduct} from '../../components/cards/card-product';
 import AddButton from '../../components/button/AddButton';
@@ -23,6 +30,8 @@ import useFetch from '../../hooks/useFetch';
 import useDelete from '../../hooks/useDelete';
 import ReactNativeModal from 'react-native-modal';
 import {ErrorHandler} from '../../lib/Error';
+import element from 'react-native-element-dropdown';
+import MultiSelectComponent from '../../components/DropdownMultiple';
 
 export type Product = {
   id: number;
@@ -36,7 +45,10 @@ const ProductScreen = () => {
   const {editMode, setNavHide} = useContext(NavContext) as navInitialContext;
   const [checkbox, setCheckbox] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const {data: products, refresh} = useFetch<Product>('api/product/list');
+  const {data: products, refresh} = useFetch<Product>({
+    url: 'api/product/list',
+    setRefreshing: setRefreshing,
+  });
   const {itemSelected, deleteItems, select, unSelect, deleteItem} = useDelete(
     'api/product',
     refresh,
@@ -113,21 +125,12 @@ const ProductScreen = () => {
   return (
     <View className="bg-white h-full">
       <AddButton onPress={() => setShowModal(true)} />
-      <View className="flex flex-row pl-4 pr-5 py-5 justify-between">
-        <View className="flex flex-row justify-between flex-1 mr-5">
-          <ButtonOpt active={true} onPress={() => {}}>
-            Filter
-          </ButtonOpt>
-          <ButtonOpt active={false} onPress={() => {}}>
-            Pulsa
-          </ButtonOpt>
-          <ButtonOpt active={false} onPress={() => {}}>
-            Voucher
-          </ButtonOpt>
-          <ButtonOpt active={false} onPress={() => {}}>
-            Kartu
-          </ButtonOpt>
-        </View>
+      <View className="my-2 flex-row items-center mx-5">
+        <MultiSelectComponent />
+        <TouchableOpacity className="flex-row items-center absolute left-[120px] top-2">
+          <IconX color={colors.err} size={23} />
+          {/* <Text className="text-err font-sourceSansPro">Bersihkan Filter</Text> */}
+        </TouchableOpacity>
       </View>
       <View className="flex-row justify-between">
         <View className="ml-6 border-b-[1px] flex-row flex mt-1 pb-[5px] w-2/5 border-accent">

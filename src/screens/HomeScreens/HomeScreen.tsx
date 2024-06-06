@@ -1,4 +1,4 @@
-import {View, Text, TouchableOpacity, useWindowDimensions} from 'react-native';
+import {Text, TouchableOpacity, useWindowDimensions} from 'react-native';
 import {useContext, useState} from 'react';
 import {SceneMap, TabBar, TabView} from 'react-native-tab-view';
 import colors from '../../../assets/colors';
@@ -6,10 +6,6 @@ import Transaction from './TransactionScreen';
 import Receivable from './ReceivableScreen';
 import Debt from './DebtScreen';
 import Header, {HeaderBtn} from '../../components/Header';
-import {
-  AuthContext,
-  initAuthContext,
-} from '../../context/AuthenticationContext';
 
 const HomeScreen = () => {
   const [index, setIndex] = useState(0);
@@ -24,7 +20,6 @@ const HomeScreen = () => {
     third: Debt,
   });
   const layout = useWindowDimensions();
-  const {userToken} = useContext(AuthContext) as initAuthContext;
 
   return (
     <>

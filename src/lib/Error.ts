@@ -14,7 +14,7 @@ export const ErrorHandler = (error: any) => {
   if (isAxiosError(error)) {
     const error_message = error.response?.data.error || error.message;
     const error_code = error.response?.status || (error.status as number);
-    console.log(error_message);
+    console.log(error_message, error.request._url);
     if (!error_code || error_code == 401 || error_code == 404)
       return {error_code, error_message};
     else

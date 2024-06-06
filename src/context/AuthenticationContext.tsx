@@ -25,7 +25,6 @@ import axios, {
 } from 'axios';
 import {BASE_URL} from '@env';
 import http from '../lib/axios';
-import {ErrorHandler, ResponseError} from '../lib/Error';
 import sessionExp from '../components/popup/sessionExp';
 import networkError from '../components/popup/networkError';
 
