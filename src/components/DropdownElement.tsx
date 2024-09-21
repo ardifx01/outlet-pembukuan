@@ -2,7 +2,6 @@ import React, {Dispatch, SetStateAction, useEffect, useState} from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 import {Dropdown} from 'react-native-element-dropdown';
 import colors from '../../assets/colors';
-import {IconChevronDown} from 'tabler-icons-react-native';
 import {Suggestions} from './modal/transaction-modal/sale-form';
 
 const DropdownComponent = ({
@@ -15,7 +14,6 @@ const DropdownComponent = ({
   value: string | null;
 }) => {
   const [isFocus, setIsFocus] = useState(false);
-
   return (
     <Dropdown
       mode="modal"

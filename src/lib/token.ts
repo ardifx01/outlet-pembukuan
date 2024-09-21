@@ -26,7 +26,7 @@ const storingRefreshToken = async (refresh_token: string) => {
   await EncryptedStorage.setItem('refresh_token', refresh_token);
 };
 const getAccessToken = async () => {
-  return await AsyncStorage.getItem('access_token');
+  return AsyncStorage.getItem('access_token');
 };
 
 const getRefreshToken = async () => {

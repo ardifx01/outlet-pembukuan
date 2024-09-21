@@ -2,8 +2,9 @@ import {Text, TouchableOpacity, View} from 'react-native';
 import colors from '../../../assets/colors';
 import CheckBox from '@react-native-community/checkbox';
 import {useContext, useEffect, useState} from 'react';
-import {NavContext, navInitialContext} from '../../context/NavigationContext';
+import {NavContext, navInitialContext} from '../../navigation/TabNavigation';
 import PopUpMenu, {PopUpMenuProps} from '../popup/PopUpMenu';
+import currency from '../../lib/currency';
 
 const CardProduct = ({
   id,
@@ -66,18 +67,10 @@ const CardProduct = ({
       <View className="flex-row items-center">
         <View className="flex-col items-end text-base justify-end">
           <Text className="text-lg font-sourceSansProSemiBold text-accent">
-            {selling_price.toLocaleString('ID-id', {
-              minimumFractionDigits: 0,
-              currency: 'IDR',
-              style: 'currency',
-            })}
+            {currency(selling_price, true)}
           </Text>
           <Text className="text-base font-sourceSansProSemiBold text-err">
-            {basic_price.toLocaleString('ID-id', {
-              minimumFractionDigits: 0,
-              currency: 'IDR',
-              style: 'currency',
-            })}
+            {currency(basic_price, true)}
           </Text>
         </View>
         <PopUpMenu {...menuProps} />

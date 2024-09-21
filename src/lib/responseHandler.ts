@@ -1,5 +1,3 @@
-import {Dispatch, SetStateAction} from 'react';
-
 type ResponseData = {data: {data: any}};
 const responseHandler = <T>(
   response: ResponseData,

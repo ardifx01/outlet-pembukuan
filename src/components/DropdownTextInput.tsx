@@ -8,7 +8,14 @@ import {
   useRef,
   useState,
 } from 'react';
-import {Dimensions, StyleProp, Text, TextInput, ViewStyle} from 'react-native';
+import {
+  Dimensions,
+  StyleProp,
+  Text,
+  TextInput,
+  View,
+  ViewStyle,
+} from 'react-native';
 import {
   AutocompleteDropdown,
   AutocompleteDropdownRef,
@@ -28,9 +35,10 @@ const DropdownTextInput = ({
   useFilter = true,
   onChangeText,
   debounce,
-  emptyRes = 'Tidak ditemukan',
+  emptyRes,
   showChevron = true,
   fixOpenSuggestion = true,
+  onFocus,
 }: {
   setSelect: Dispatch<SetStateAction<any>>;
   data: {id: string; title: string}[] | null;
@@ -46,6 +54,7 @@ const DropdownTextInput = ({
   emptyRes?: string;
   showChevron?: boolean;
   fixOpenSuggestion?: boolean;
+  onFocus?: () => any;
 }) => {
   const dropdownController = useRef<null | AutocompleteDropdownRef>(null);
   const searchRef = useRef<null | TextInput>(null);
@@ -54,7 +63,6 @@ const DropdownTextInput = ({
     setIsOpen(isOpened);
     await onOpenSuggestionsList(isOpened);
   };
-  useEffect(() => {}, [emptyRes]);
   useEffect(() => {
     if (isOpen && fixOpenSuggestion) {
       dropdownController.current?.close();
@@ -70,6 +78,7 @@ const DropdownTextInput = ({
         dropdownController.current = controller;
       }}
       direction="down"
+      onFocus={onFocus}
       clearOnFocus={false}
       dataSet={data}
       closeOnBlur={true}
@@ -89,7 +98,6 @@ const DropdownTextInput = ({
           {item.title}
         </Text>
       )}
-      // useFilter={false} // set false to prevent rerender twice
       textInputProps={{
         placeholder: placeHolder,
         autoCorrect: false,
@@ -128,7 +136,13 @@ const DropdownTextInput = ({
       onClear={() => {
         setSelect('');
       }}
-      emptyResultText={emptyRes}
+      EmptyResultComponent={
+        <View>
+          <Text className="text-primary/50 text-center font-sourceSansProSemiBold p-[10px] text-sm">
+            {emptyRes}
+          </Text>
+        </View>
+      }
     />
   );
 };

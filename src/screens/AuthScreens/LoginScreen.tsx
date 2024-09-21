@@ -1,5 +1,5 @@
 import {View, Text, TextInput, TouchableOpacity} from 'react-native';
-import React, {useContext, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import colors from '../../../assets/colors';
 import {
   IconEye,
@@ -8,33 +8,36 @@ import {
   IconMail,
 } from 'tabler-icons-react-native';
 import {NavigationProp, useNavigation} from '@react-navigation/native';
-import AuthNavigation, {
-  RootStackParamList,
-} from '../../navigation/AuthNavigation';
+import {RootStackParamList} from '../../navigation/AuthNavigation';
 import {
   AuthContext,
   initAuthContext,
 } from '../../context/AuthenticationContext';
+import {emailRegex} from '../../lib/utils';
 
 const LoginScreen: React.FC = () => {
-  const {login, userToken} = useContext(AuthContext) as initAuthContext;
   const [hidePassword, setHidePassword] = useState(true);
   const [credential, setCredential] = useState({
     email: 'user@mail.com',
-    password: 'root',
+    password: 'root1234',
   });
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const {error} = useContext(AuthContext) as initAuthContext;
+  const {error, setError, login} = useContext(AuthContext) as initAuthContext;
 
   const loginHandler = async () => {
-    if (!credential.email && !credential.password) {
+    if (!emailRegex.test(credential.email)) {
+      setError('email tidak valid');
       return;
     } else {
       await login(credential);
     }
   };
+
+  useEffect(() => {
+    setError('');
+  }, [navigation]);
   return (
-    <View className="flex min-h-full items-center justify-around bg-main">
+    <View className="flex min-h-full items-center justify-around bg-border">
       <Text className="text-[40px] text-primary font-sourceSansProSemiBold mt-8">
         My <Text className="text-accent">Outlet</Text>
       </Text>
@@ -104,7 +107,8 @@ const LoginScreen: React.FC = () => {
           <Text className="font-sourceSansPro text-base text-placeholder">
             Lupa password?{' '}
           </Text>
-          <TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('ForgotPassword')}>
             <Text className="font-sourceSansPro text-base text-accent">
               Atur ulang
             </Text>

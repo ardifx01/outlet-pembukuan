@@ -1,15 +1,5 @@
-import React, {useContext, useEffect, useRef, useState} from 'react';
-import {
-  View,
-  Text,
-  useWindowDimensions,
-  TouchableOpacity,
-  KeyboardAvoidingView,
-  Dimensions,
-  TextInput,
-  ScrollView,
-  Keyboard,
-} from 'react-native';
+import React, {memo, useContext, useState} from 'react';
+import {View, Text, useWindowDimensions, TouchableOpacity} from 'react-native';
 import Modal from 'react-native-modal';
 import {TabBar, TabView} from 'react-native-tab-view';
 import colors from '../../../../assets/colors';
@@ -31,6 +21,7 @@ const TrxModal = (): JSX.Element => {
   ]);
   const [headerOffset, setHeaderOffset] = useState(0);
   const layout = useWindowDimensions();
+
   return (
     <Modal
       isVisible={showModal}
@@ -39,7 +30,6 @@ const TrxModal = (): JSX.Element => {
       onBackButtonPress={() => setShowModal(false)}
       animationInTiming={400}
       animationOutTiming={400}
-      swipeDirection={[]}
       className="m-0 justify-end">
       <View
         className="h-[609px] max-h-full bg-white rounded-t-[40px] px-3 min-w-full"
@@ -98,4 +88,4 @@ const TabBarView = (props: any) => (
     )}
   />
 );
-export default TrxModal;
+export default memo(TrxModal);

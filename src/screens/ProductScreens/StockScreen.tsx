@@ -1,17 +1,31 @@
-import {View, Text, TouchableOpacity, useWindowDimensions} from 'react-native';
-import {useState} from 'react';
+import {Text, TouchableOpacity, useWindowDimensions} from 'react-native';
+import {Dispatch, memo, SetStateAction, useState} from 'react';
 import Header, {HeaderBtn} from '../../components/Header';
-import {IconEdit, IconRefresh} from 'tabler-icons-react-native';
 import colors from '../../../assets/colors';
 import {SceneMap, TabBar, TabView} from 'react-native-tab-view';
 import ProductScreen from './ProductScreen';
 import CategoryScreen from './CategoryScreen';
 
+export type StockScreenRouteProps = {
+  key: string;
+  title: string;
+  setRefresh: Dispatch<
+    SetStateAction<{
+      product: () => void;
+      category: () => void;
+    }>
+  >;
+};
+
 const StockScreen = () => {
   const [index, setIndex] = useState(0);
+  const [refresh, setRefresh] = useState({
+    product: () => {},
+    category: () => {},
+  });
   const [routes] = useState([
-    {key: 'first', title: 'Produk'},
-    {key: 'second', title: 'Kategori'},
+    {key: 'first', title: 'Produk', setRefresh},
+    {key: 'second', title: 'Kategori', setRefresh},
   ]);
   const layout = useWindowDimensions();
   const renderScene = SceneMap({
@@ -19,29 +33,38 @@ const StockScreen = () => {
     second: CategoryScreen,
   });
 
-  const refreshHandler = () => {};
+  const refreshHandler = () => {
+    switch (index) {
+      case 0:
+        refresh.product();
+        break;
+      case 1:
+        refresh.category();
+        break;
+      default:
+        null;
+    }
+  };
   return (
     <>
       <Header>
         <Text className="font-sourceSansProSemiBold text-white  px-5 rounded-full py-[1px] text-2xl">
           List Produk
         </Text>
-        <HeaderBtn onRefresh={refreshHandler}/>
+        <HeaderBtn onRefresh={refreshHandler} />
       </Header>
-      <>
-        <TabView
-          navigationState={{index, routes}}
-          renderScene={renderScene}
-          onIndexChange={setIndex}
-          initialLayout={{width: layout.width}}
-          renderTabBar={TabBarView}
-        />
-      </>
+      <TabView
+        navigationState={{index, routes}}
+        renderScene={renderScene}
+        onIndexChange={setIndex}
+        initialLayout={{width: layout.width}}
+        renderTabBar={TabBarView}
+      />
     </>
   );
 };
 
-export default StockScreen;
+export default memo(StockScreen);
 
 const TabBarView = (props: any) => (
   <TabBar

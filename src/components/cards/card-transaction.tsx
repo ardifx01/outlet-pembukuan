@@ -2,7 +2,7 @@ import CheckBox from '@react-native-community/checkbox';
 import {useContext, useEffect, useState} from 'react';
 import {Text, TouchableOpacity, View} from 'react-native';
 import colors from '../../../assets/colors';
-import {NavContext, navInitialContext} from '../../context/NavigationContext';
+import {NavContext, navInitialContext} from '../../navigation/TabNavigation';
 import currency from '../../lib/currency';
 import PopUpMenu, {PopUpMenuProps} from '../popup/PopUpMenu';
 import {IconBrandCashapp} from 'tabler-icons-react-native';
@@ -20,6 +20,7 @@ const CardSale = ({
   onUnCheck = () => {},
   checkValue,
   receivable,
+  onPress,
   ...popMenu
 }: {
   id: number;
@@ -35,6 +36,7 @@ const CardSale = ({
   };
   onCheck?: (id: number) => void;
   onUnCheck?: (id: number) => void;
+  onPress?: () => void;
   checkValue: boolean;
 } & PopUpMenuProps) => {
   const [checkbox, setCheckbox] = useState(false);
@@ -54,10 +56,10 @@ const CardSale = ({
 
   return (
     <TouchableOpacity
-      disabled={!editMode}
-      onPress={select}
+      disabled={!onPress}
+      onPress={editMode ? select : onPress}
       id="card-sale"
-      className="flex flex-row justify-between pl-4 pr-2 py-1 bg-blue-100 mb-2 rounded-md mx-2">
+      className="flex flex-row justify-between pl-4 pr-2 py-1 bg-blue-100 mb-1 rounded-md mx-2">
       <View className="flex-row items-center">
         {editMode && (
           <View className="-ml-3">
@@ -119,6 +121,7 @@ const CardExpense = ({
   onUnCheck = () => {},
   checkValue,
   debt,
+  onPress,
   ...popMenu
 }: {
   id: number;
@@ -132,6 +135,7 @@ const CardExpense = ({
   };
   onCheck?: (id: number) => void;
   onUnCheck?: (id: number) => void;
+  onPress?: () => void;
   checkValue: boolean;
 } & PopUpMenuProps) => {
   const [checkbox, setCheckbox] = useState(checkValue);
@@ -152,10 +156,10 @@ const CardExpense = ({
 
   return (
     <TouchableOpacity
-      disabled={!editMode}
-      onPress={select}
+      disabled={!onPress}
+      onPress={editMode ? select : onPress}
       id="card-expense"
-      className="flex flex-row justify-between pl-4 pr-2 py-1 bg-red-100 mb-2 mx-2 rounded-md">
+      className="flex flex-row justify-between pl-4 pr-2 py-1 bg-red-100 mb-1 mx-2 rounded-md">
       <View>
         <View className="flex-row items-center">
           {editMode && (

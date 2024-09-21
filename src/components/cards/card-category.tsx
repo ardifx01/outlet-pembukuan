@@ -1,6 +1,6 @@
 import {useContext, useEffect, useState} from 'react';
 import {Text, TouchableOpacity, View} from 'react-native';
-import {NavContext, navInitialContext} from '../../context/NavigationContext';
+import {NavContext, navInitialContext} from '../../navigation/TabNavigation';
 import CheckBox from '@react-native-community/checkbox';
 import colors from '../../../assets/colors';
 import PopUpMenu, {PopUpMenuProps} from '../popup/PopUpMenu';

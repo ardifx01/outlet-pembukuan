@@ -1,7 +1,7 @@
 import {ReactNode, useContext} from 'react';
 import {Text, TouchableOpacity, View} from 'react-native';
-import {NavContext, navInitialContext} from '../context/NavigationContext';
 import {IconEdit, IconRefresh} from 'tabler-icons-react-native';
+import {NavContext, navInitialContext} from '../navigation/TabNavigation';
 
 const Header: React.FC<{children: ReactNode}> = ({children}) => {
   return (
@@ -37,7 +37,6 @@ const HeaderBtn = ({onRefresh}: {onRefresh: () => void}) => {
           <TouchableOpacity
             onPress={() => {
               setEditMode(true);
-              setNavHide(true);
             }}>
             <IconEdit size={31} color="#fff" stroke={1.5} />
           </TouchableOpacity>

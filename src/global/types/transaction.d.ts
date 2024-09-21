@@ -11,6 +11,8 @@ export type sale<T = string> = {
     total: number;
     note: string;
     paid: boolean;
+    updated_at: string;
+    created_at: string;
   };
 };
 
@@ -24,6 +26,8 @@ export type expense<T = string> = {
     total: number;
     note: string;
     paid: boolean;
+    updated_at: string;
+    created_at: string;
   };
   created_at: T;
 };

@@ -1,7 +1,7 @@
 import {View, Text, Animated, TouchableOpacity} from 'react-native';
 import React, {useContext, useEffect, useRef} from 'react';
 import {IconPlus} from 'tabler-icons-react-native';
-import {NavContext, navInitialContext} from '../../context/NavigationContext';
+import {NavContext, navInitialContext} from '../../navigation/TabNavigation';
 
 const AddButton = ({onPress = () => {}}) => {
   const {navHide} = useContext(NavContext) as navInitialContext;

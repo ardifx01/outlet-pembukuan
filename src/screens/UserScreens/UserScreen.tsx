@@ -1,7 +1,10 @@
 import {View, Text, TouchableOpacity, Alert} from 'react-native';
-import React, {useContext} from 'react';
-import Header from '../components/Header';
-import {AuthContext, initAuthContext} from '../context/AuthenticationContext';
+import React, {useContext, useEffect, useState} from 'react';
+import Header from '../../components/Header';
+import {
+  AuthContext,
+  initAuthContext,
+} from '../../context/AuthenticationContext';
 import {
   IconEdit,
   IconFileDescription,
@@ -9,16 +12,29 @@ import {
   IconQuestionMark,
   IconSettings,
   IconShieldLock,
-  IconTrash,
   IconUser,
 } from 'tabler-icons-react-native';
-import colors from '../../assets/colors';
+import colors from '../../../assets/colors';
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import {RootStackParamList} from './UserStack';
+import useFetchUser from '../../hooks/useFetchUser';
 
-const UserScreen = () => {
+type Props = NativeStackScreenProps<RootStackParamList, 'Account'>;
+
+const UserScreen = ({navigation, route}: Props) => {
   const {logout} = useContext(AuthContext) as initAuthContext;
+  const [user, setUser] = useState({email: '', username: ''});
   const logoutHandler = async () => {
     await logout();
   };
+  useEffect(() => {
+    if (route.params?.username) {
+      setUser(user => ({...user, username: route.params?.username as string}));
+    }
+  }, [route.params?.username]);
+
+  useFetchUser(setUser);
+
   const confirmationAlert = () =>
     Alert.alert('Keluar', 'Apakah anda ingin keluar dari akun ini?', [
       {
@@ -47,9 +63,11 @@ const UserScreen = () => {
           <IconUser size={80} color={colors.secondary} />
         </View>
         <Text className="font-sourceSansProSemiBold text-primary text-xl mt-4">
-          Username0980
+          {user.username}
         </Text>
-        <TouchableOpacity className="bg-secondary flex flex-row justify-center items-center py-1 px-6 rounded-full mt-3">
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Edit', user)}
+          className="bg-secondary flex flex-row justify-center items-center py-1 px-6 rounded-full mt-3">
           <IconEdit size={22} color="#fff" />
           <Text className="text-white font-sourceSansProSemiBold text-lg ml-1">
             Edit
@@ -57,13 +75,23 @@ const UserScreen = () => {
         </TouchableOpacity>
       </View>
       <View className="flex gap-6 px-5 mt-4">
+        <TouchableOpacity
+          onPress={() => navigation.navigate('ProfileScreen', {user})}
+          className="border-b-[1px] border-secondary pl-1 flex flex-row">
+          <IconUser size={24} color={colors.primary} />
+          <Text className="text-primary text-lg font-sourceSansProSemiBold pl-1">
+            Profil
+          </Text>
+        </TouchableOpacity>
         <TouchableOpacity className="border-b-[1px] border-secondary pl-1 flex flex-row">
           <IconFileDescription size={24} color={colors.primary} />
           <Text className="text-primary text-lg font-sourceSansProSemiBold pl-1">
             Catatan
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity className="border-b-[1px] border-secondary pl-1 flex flex-row">
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Security')}
+          className="border-b-[1px] border-secondary pl-1 flex flex-row">
           <IconShieldLock size={24} color={colors.primary} />
           <Text className="text-primary text-lg font-sourceSansProSemiBold pl-1">
             Keamanan akun
@@ -85,12 +113,6 @@ const UserScreen = () => {
           <IconQuestionMark size={24} color={colors.primary} />
           <Text className="text-primary text-lg font-sourceSansProSemiBold pl-1">
             FAQ
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity className="border-b-[1px] border-secondary pl-1 flex flex-row">
-          <IconTrash size={24} color={colors.primary} />
-          <Text className="text-primary text-lg font-sourceSansProSemiBold pl-1">
-            Hapus akun
           </Text>
         </TouchableOpacity>
       </View>

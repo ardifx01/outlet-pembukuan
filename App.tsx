@@ -1,17 +1,35 @@
-import AppNav from './src/navigation/AppNavigation';
-import {AuthProvider} from './src/context/AuthenticationContext';
-import {MenuProvider} from 'react-native-popup-menu';
-import element from 'react-native-element-dropdown';
+import {NavigationContainer} from '@react-navigation/native';
+import {useContext, useEffect} from 'react';
+import {
+  AuthContext,
+  AuthProvider,
+  initAuthContext,
+} from './src/context/AuthenticationContext';
+import MyTabs from './src/navigation/TabNavigation';
+import AuthNavigation from './src/navigation/AuthNavigation';
 
 const App = (): JSX.Element => {
-  console.log(element);
+  useEffect(() => {
+    preloadDropdownComponents();
+  }, []);
   return (
-    <AuthProvider>
-      <MenuProvider>
-        <AppNav />
-      </MenuProvider>
-    </AuthProvider>
+    <NavigationContainer>
+      <AuthProvider>
+        <Authentication />
+      </AuthProvider>
+    </NavigationContainer>
   );
 };
 
+const Authentication = () => {
+  const {userToken} = useContext(AuthContext) as initAuthContext;
+  return <>{userToken ? <MyTabs /> : <AuthNavigation />}</>;
+};
+
 export default App;
+
+const preloadDropdownComponents = async () => {
+  await import('react-native-element-dropdown');
+  await import('react-native-chart-kit');
+  await import('react-native-calendars');
+};

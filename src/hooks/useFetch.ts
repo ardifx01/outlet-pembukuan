@@ -2,7 +2,6 @@ import {
   Dispatch,
   SetStateAction,
   useCallback,
-  useContext,
   useEffect,
   useState,
 } from 'react';
@@ -52,12 +51,16 @@ export default function useFetch<T>({
       setRefreshing(false);
     }
   }, [search, time, category, paid, type]);
-  // useEffect(() => {
-  //   console.log(search, time, category, paid, type);
-  // }, [search, time, category, paid, type]);
+
   useEffect(() => {
     fetchProduct();
   }, [fetchProduct]);
+  // useEffect(() => {
+  //   console.log(data);
+  // }, [data]);
+  // useEffect(() => {
+  //   console.log(search, time, category, paid, type);
+  // }, [search, time, category, paid, type]);
 
   return {data, refresh: fetchProduct};
 }

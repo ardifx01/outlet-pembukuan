@@ -12,7 +12,6 @@ import {IconSearch, IconTrash, IconX} from 'tabler-icons-react-native';
 import colors from '../../../assets/colors';
 import AddButton from '../../components/button/AddButton';
 import {useCallback, useContext, useEffect, useState} from 'react';
-import {NavContext, navInitialContext} from '../../context/NavigationContext';
 import CheckBox from '@react-native-community/checkbox';
 import isCloseToBottom from '../../lib/navigation';
 import CardCategory from '../../components/cards/card-category';
@@ -24,8 +23,10 @@ import useFetch from '../../hooks/useFetch';
 import useDelete from '../../hooks/useDelete';
 import {useDebounce} from 'use-debounce';
 import {ErrorHandler} from '../../lib/Error';
+import {StockScreenRouteProps} from './StockScreen';
+import {NavContext, navInitialContext} from '../../navigation/TabNavigation';
 
-const CategoryScreen = () => {
+const CategoryScreen = ({route}: {route: StockScreenRouteProps}) => {
   const [showModal, setShowModal] = useState(false);
   const {editMode, setNavHide} = useContext(NavContext) as navInitialContext;
   const [checkbox, setCheckbox] = useState(false);
@@ -70,6 +71,10 @@ const CategoryScreen = () => {
       ? setSearchResult(null)
       : setSearchResult(newSearched!);
   }, [searchDobouced]);
+
+  useEffect(() => {
+    route.setRefresh(curr => ({...curr, category: refresh}));
+  }, []);
 
   const deleteCategory = (item: Category) => {
     Alert.alert(
@@ -205,6 +210,7 @@ const CategoryScreen = () => {
           )}
           ifNull={<NotFound>Kategori tidak ditemukan</NotFound>}
         />
+        <View className="h-20"></View>
       </ScrollView>
       <CategoryModal {...{setShowModal, showModal, refresh, edit}} />
     </View>

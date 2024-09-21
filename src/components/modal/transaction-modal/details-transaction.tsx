@@ -1,8 +1,6 @@
 import ReactNativeModal from 'react-native-modal';
 import {expense, sale} from '../../../global/types/transaction';
-import {Text, TouchableOpacity, View} from 'react-native';
-import {IconX} from 'tabler-icons-react-native';
-import colors from '../../../../assets/colors';
+import {Text, View} from 'react-native';
 import {Dispatch, SetStateAction, useEffect, useState} from 'react';
 import {getDate, getTime, timeFormat} from '../../../lib/time';
 import currency from '../../../lib/currency';
@@ -27,6 +25,8 @@ const DetailTransaction = ({
     <ReactNativeModal
       onBackdropPress={close}
       isVisible={show}
+      animationIn={'zoomIn'}
+      animationOut={'zoomOut'}
       className="items-center">
       <View className="bg-white w-11/12 rounded-md pt-6 pb-8 px-8">
         <Text className="text-lg text-center font-sourceSansProSemiBold text-primary mb-2">
@@ -106,12 +106,28 @@ const DetailTransaction = ({
         </View>
         {debtOrRec && (
           <>
-            <Text className="font-sourceSansProSemiBold text-base w-full text-err mt-1">
-              {transaction?.type == 'sale' ? 'Piutang' : 'Utang'}
-            </Text>
+            {debtOrRec.paid && (
+              <View className="flex-row w-full">
+                <Text className="flex-1 font-sourceSansProSemiBold text-base w-full text-success">
+                  Lunas
+                </Text>
+                <Text className="font-sourceSansProSemiBold text-base w-full text-success flex-1">
+                  {getDate(debtOrRec.updated_at)}
+                </Text>
+              </View>
+            )}
+            <View className="flex-row w-full mb-1">
+              <Text className="font-sourceSansProSemiBold text-base w-full text-err flex-1">
+                {transaction?.type == 'sale' ? 'Piutang' : 'Utang'}
+              </Text>
+              <Text className="font-sourceSansProSemiBold text-base w-full text-err flex-1">
+                {getDate(debtOrRec.created_at, true)}
+              </Text>
+            </View>
+
             <View className="border-dashed border-2 border-border px-2 pt-1 pb-2">
               {debtOrRec.paid && (
-                <Text className="absolute z-10 top-[20%] right-[15%] -rotate-[25deg] text-6xl uppercase border-2 border-success pt-3 px-3 text-center align-middle font-sourceSansProSemiBold border-dashed text-success">
+                <Text className="absolute z-10 top-[20%] right-[15%] -rotate-[20deg] text-6xl uppercase border-2 border-success pt-3 px-3 text-center align-middle font-sourceSansProSemiBold border-dashed text-success">
                   Lunas
                 </Text>
               )}

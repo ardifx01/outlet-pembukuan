@@ -8,9 +8,9 @@ import http from '../../../lib/axios';
 import {ErrorHandler} from '../../../lib/Error';
 
 export type Edit = {
-  id: number;
+  id?: number;
   type: 'sale' | 'expense';
-  title: string;
+  title?: string;
   defaultValue: DefaultValue | undefined;
 };
 type DefaultValue = {
@@ -83,18 +83,21 @@ const EditTransaction = ({
   };
   return (
     <ModalBody
+      edit={!!edit?.defaultValue}
       {...{showModal, setShowModal: setShow}}
       onSubmit={onSubmit}
-      height="h-[420px]"
+      height="h-[425px]"
       title={`${edit?.defaultValue ? 'Edit' : 'Tambah'} ${
         edit?.type == 'sale' ? 'Piutang' : 'Utang'
       }`}>
       <Text className="font-sourceSansProSemiBold text-base pl-2 text-accent">
         Transaksi
       </Text>
-      <Text className="font-sourceSansProSemiBold text-base pl-2 py-2 bg-border rounded text-accent">
-        {edit?.title}
-      </Text>
+      {edit?.title && (
+        <Text className="font-sourceSansProSemiBold text-base pl-2 py-2 bg-border rounded text-accent">
+          {edit.title}
+        </Text>
+      )}
       <Text className="font-sourceSansProSemiBold text-base pl-2 mt-2 text-accent">
         Catatan
       </Text>
@@ -105,8 +108,9 @@ const EditTransaction = ({
         }}
         multiline={true}
         numberOfLines={3}
+        maxLength={45}
         style={{textAlignVertical: 'top'}}
-        className="bg-border px-3 py-1 rounded-md text-accent font-sourceSansProSemiBold text-base max-h-[80px]"
+        className="bg-border px-3 rounded-md text-accent font-sourceSansProSemiBold text-base max-h-[80px]"
       />
       <Text className="mt-2 font-sourceSansProSemiBold text-base pl-2 text-accent">
         Total

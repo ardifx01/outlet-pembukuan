@@ -2,7 +2,7 @@ import {useContext, useEffect, useState} from 'react';
 import http from '../lib/axios';
 import {AuthContext, initAuthContext} from '../context/AuthenticationContext';
 import {Alert} from 'react-native';
-import {NavContext, navInitialContext} from '../context/NavigationContext';
+import {NavContext, navInitialContext} from '../navigation/TabNavigation';
 
 const useDelete = (url: string, onSuccess: () => void = () => {}) => {
   const [itemSelected, setItemSelected] = useState<number[]>([]);

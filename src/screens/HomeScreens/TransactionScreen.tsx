@@ -1,14 +1,13 @@
 import {
   createContext,
   Dispatch,
+  memo,
   SetStateAction,
   useCallback,
   useContext,
   useEffect,
-  useRef,
   useState,
 } from 'react';
-import {NavContext, navInitialContext} from '../../context/NavigationContext';
 import {
   Alert,
   RefreshControl,
@@ -18,7 +17,6 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import ButtonOpt from '../../components/button/ButtonOption';
 import {
   IconAdjustments,
   IconBrandCashapp,
@@ -32,7 +30,6 @@ import AddButton from '../../components/button/AddButton';
 import TrxModal from '../../components/modal/transaction-modal/transaction-modal';
 import isCloseToBottom from '../../lib/navigation';
 import CheckBox from '@react-native-community/checkbox';
-import FilterModal from '../../components/modal/FilterModal';
 import {expense, sale, transaction} from '../../global/types/transaction';
 import NotFound from '../../components/NotFound';
 import useFetch from '../../hooks/useFetch';
@@ -46,7 +43,13 @@ import DetailTransaction from '../../components/modal/transaction-modal/details-
 import EditTransaction, {
   Edit,
 } from '../../components/modal/transaction-modal/edit-transaction';
-
+import MyAlert from '../../components/popup/MyAlert';
+import {
+  DatesContext,
+  DatesContextInit,
+  HomeScreenRouteProps,
+} from './HomeScreen';
+import {NavContext, navInitialContext} from '../../navigation/TabNavigation';
 export type TrxModalInitialContext = {
   showModal: boolean;
   setShowModal: Dispatch<SetStateAction<boolean>>;
@@ -56,13 +59,16 @@ export const TrxModalContext = createContext<null | TrxModalInitialContext>(
   null,
 );
 
-const Transaction = () => {
+const Transaction = ({route}: {route: HomeScreenRouteProps}) => {
+  const {dates, setDates} = useContext(DatesContext) as DatesContextInit;
+  const setTrxDate = (date: string[] | null) =>
+    setDates(dates => ({...dates, transaction: date}));
   const [showModal, setShowModal] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
   const {setNavHide, editMode} = useContext(NavContext) as navInitialContext;
   const [checkbox, setCheckbox] = useState(false);
   const [refreshing, setRefreshing] = useState<boolean>(false);
-  const [date, setDate] = useState<string[] | null>(null);
+  const [date, setDate] = [dates.transaction, setTrxDate];
   const [type, setType] = useState<string | null>(null);
   const [search, setSearch] = useState<string | null>(null);
   const [edit, setEdit] = useState<Edit | null>(null);
@@ -118,6 +124,10 @@ const Transaction = () => {
   }, []);
 
   useEffect(() => {
+    route.setRefresh(curr => ({...curr, transaction: refresh}));
+  }, []);
+
+  useEffect(() => {
     if (!editMode) {
       setCheckbox(true);
       setTimeout(() => {
@@ -128,112 +138,64 @@ const Transaction = () => {
 
   const onDelete = () => {
     if (saleSelected.length == 0 && expenseSelected.length == 0) return;
-    Alert.alert(
+    MyAlert(
       'Hapus!!!',
       'Apakah anda ingin mengahpus kategori yang dipilih?',
-      [
-        {
-          text: 'Batal',
-          style: 'cancel',
-          onPress: () => {},
-        },
-        {
-          text: 'Hapus',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              const errorSale = await deleteSales(false);
-              const errorExpense = await deleteExpenses(false);
-              const errors = [...(errorSale || []), ...(errorExpense || [])];
-              refresh();
-              if (errors.length != 0) Alert.alert('Error', errors.join('\n'));
-              setCheckbox(false);
-            } catch (error) {
-              ErrorHandler(error);
-            }
-          },
-        },
-      ],
+      async () => {
+        try {
+          const errorSale = await deleteSales(false);
+          const errorExpense = await deleteExpenses(false);
+          const errors = [...(errorSale || []), ...(errorExpense || [])];
+          refresh();
+          if (errors.length != 0) Alert.alert('Error', errors.join('\n'));
+          setCheckbox(false);
+        } catch (error) {
+          ErrorHandler(error);
+        }
+      },
     );
   };
 
   const handleDelete = (item: sale<number> | expense<number>) => {
-    Alert.alert(
+    MyAlert(
       'Hapus!!!',
       `Apakah anda ingin menghapus transaksi "${item.name}"?`,
-      [
-        {
-          text: 'Batal',
-          style: 'cancel',
-          onPress: () => {},
-        },
-        {
-          text: 'Hapus',
-          style: 'destructive',
-          onPress: async () => {
-            setRefreshing(true);
-            const [id, error] =
-              item.type == 'sale'
-                ? await deleteSale(item.id)
-                : await deleteExpense(item.id);
-            id && refresh();
-            error && ErrorHandler(error);
-            setRefreshing(false);
-          },
-        },
-      ],
+      async () => {
+        setRefreshing(true);
+        const [id, error] =
+          item.type == 'sale'
+            ? await deleteSale(item.id)
+            : await deleteExpense(item.id);
+        id && refresh();
+        error && ErrorHandler(error);
+        setRefreshing(false);
+      },
     );
   };
 
   return (
-    <View className={`bg-white flex flex-col min-h-full pt-3`}>
+    <View className={`bg-white flex flex-col h-full pt-3`}>
       <AddButton onPress={modalToggle} />
       {!editMode && (
         <>
-          <View className="flex flex-row pl-4 pr-5 pb-3 justify-between">
-            <View className="flex flex-row justify-between flex-1 mr-5">
-              <ButtonOpt
-                active={!date}
-                onPress={() => {
-                  setDate(null);
-                }}>
-                Hari ini
-              </ButtonOpt>
-              <ButtonOpt
-                active={!!(date && date[2] == 'week')}
-                onPress={() => {
-                  setDate([
-                    days().startOf('week').toISOString(),
-                    days().endOf('week').toISOString(),
-                    'week',
-                  ]);
-                }}>
-                Minggu ini
-              </ButtonOpt>
-              <ButtonOpt
-                active={!!(date && date[2] == 'month')}
-                onPress={() => {
-                  setDate([
-                    days().startOf('month').toISOString(),
-                    days().endOf('month').toISOString(),
-                    'month',
-                  ]);
-                }}>
-                Bulan ini
-              </ButtonOpt>
-            </View>
-            <TouchableOpacity
-              onPress={() => setShowFilter(showFilter => !showFilter)}>
-              {showFilter ? (
-                <IconX size={30} color={colors.accent} />
-              ) : (
-                <IconAdjustments size={30} color={colors.accent} />
-              )}
-              {type && !showFilter && (
-                <View className="absolute bg-err h-2 w-2 rounded-full -top-1 -right-1"></View>
-              )}
-            </TouchableOpacity>
-          </View>
+          <FilterType
+            show={true}
+            defaultTitle="Hari ini"
+            title={['Minggu ini', 'Bulan ini']}
+            types={[
+              [
+                days().startOf('week').toISOString(),
+                days().endOf('week').toISOString(),
+                'week',
+              ],
+              [
+                days().startOf('month').toISOString(),
+                days().endOf('month').toISOString(),
+                'month',
+              ],
+            ]}
+            {...{setType: setDate, type: date}}
+          />
           <FilterType
             show={showFilter}
             title={['Penjualan', 'Pengeluaran']}
@@ -244,17 +206,31 @@ const Transaction = () => {
       )}
       <View className="flex-row justify-between">
         {!editMode ? (
-          <View className="ml-6 border-b-[1px] flex-row flex mt-1 pb-[5px] w-2/5 border-accent">
-            <IconSearch size={23} color={colors.accent} />
-            <TextInput
-              onChangeText={text => {
-                !text ? setSearch(null) : setSearch(text);
-              }}
-              value={search || ''}
-              className="p-0 mx-1 h-6 text-[15px] text-accent"
-              placeholder="Cari di transaksi"
-              placeholderTextColor={colors.accent}
-            />
+          <View className="pl-6 pr-4 items-center flex-row justify-between w-full">
+            <View className="border-b-[1px] flex-row flex mt-1 pb-[5px] w-2/5 border-accent">
+              <IconSearch size={23} color={colors.accent} />
+              <TextInput
+                onChangeText={text => {
+                  !text ? setSearch(null) : setSearch(text);
+                }}
+                value={search || ''}
+                className="p-0 mx-1 h-6 text-[15px] text-accent"
+                placeholder="Cari di transaksi"
+                placeholderTextColor={colors.accent}
+              />
+            </View>
+            <TouchableOpacity
+              className="mt-2"
+              onPress={() => setShowFilter(showFilter => !showFilter)}>
+              {showFilter ? (
+                <IconX size={30} color={colors.accent} />
+              ) : (
+                <IconAdjustments size={30} color={colors.accent} />
+              )}
+              {type && !showFilter && (
+                <View className="absolute bg-err h-2 w-2 rounded-full -top-1 -right-1"></View>
+              )}
+            </TouchableOpacity>
           </View>
         ) : (
           <View className="px-4 flex-row justify-between w-full items-center">
@@ -281,7 +257,7 @@ const Transaction = () => {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
         id="content"
-        className="mt-4 "
+        className="mt-4"
         scrollEventThrottle={400}
         onScroll={({nativeEvent}) => {
           if (isCloseToBottom(nativeEvent)) {
@@ -296,6 +272,9 @@ const Transaction = () => {
             item.type == 'sale' ? (
               <CardSale
                 {...item}
+                onPress={() => {
+                  setDetailTransaction(item);
+                }}
                 onCheck={selectSale}
                 onUnCheck={unSelectSale}
                 checkValue={checkbox}
@@ -318,6 +297,9 @@ const Transaction = () => {
               />
             ) : (
               <CardExpense
+                onPress={() => {
+                  setDetailTransaction(item);
+                }}
                 onCheck={selectExpense}
                 onUnCheck={unSelectExpense}
                 {...item}
@@ -343,6 +325,7 @@ const Transaction = () => {
           }
           ifNull={<NotFound>Belum ada transaksi</NotFound>}
         />
+        <View className="h-20"></View>
       </ScrollView>
       <TrxModalContext.Provider
         value={{
@@ -351,7 +334,6 @@ const Transaction = () => {
           refresh,
         }}>
         <TrxModal />
-        <FilterModal />
       </TrxModalContext.Provider>
       <DetailTransaction
         setTransaction={setDetailTransaction}
@@ -362,4 +344,4 @@ const Transaction = () => {
   );
 };
 
-export default Transaction;
+export default memo(Transaction);

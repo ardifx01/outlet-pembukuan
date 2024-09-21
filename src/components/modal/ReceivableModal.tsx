@@ -1,21 +1,57 @@
-import {useContext} from 'react';
-import ReactNativeModal from 'react-native-modal';
+import {useContext, useEffect, useState} from 'react';
 import {View, Text, TextInput} from 'react-native';
-import Button from '../Button';
-import {IconCheck, IconX} from 'tabler-icons-react-native';
-import colors from '../../../assets/colors';
 import ModalBody, {ModalState} from './ModalBody';
+import currency from '../../lib/currency';
+import {
+  AuthContext,
+  initAuthContext,
+} from '../../context/AuthenticationContext';
+import http from '../../lib/axios';
+import {ErrorHandler} from '../../lib/Error';
 
-const ReceivableModal = ({setShowModal, showModal}: ModalState) => {
+type ReceivableForm = {
+  note: string;
+  total: number;
+};
+
+const ReceivableModal = ({setShowModal, showModal, refresh}: ModalState) => {
+  const [receivable, setReceivable] = useState<ReceivableForm>({
+    note: '',
+    total: 0,
+  });
+
+  const {setIsLoading} = useContext(AuthContext) as initAuthContext;
+
+  const submitHandler = async () => {
+    if (!receivable.note || !receivable.total) return;
+    setShowModal(false);
+    setIsLoading(true);
+    try {
+      await http.post('api/receivable', receivable);
+      refresh();
+    } catch (error) {
+      ErrorHandler(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    setReceivable({note: '', total: 0});
+  }, [showModal]);
   return (
     <ModalBody
       title="Tambah Piutang"
-      onSubmit={() => {}}
+      onSubmit={submitHandler}
       {...{setShowModal, showModal}}>
       <Text className="font-sourceSansProSemiBold text-base pl-2 text-accent">
         Catatan
       </Text>
       <TextInput
+        value={receivable.note}
+        onChangeText={text =>
+          setReceivable(receivable => ({...receivable, note: text}))
+        }
         multiline={true}
         numberOfLines={3}
         style={{textAlignVertical: 'top'}}
@@ -25,6 +61,13 @@ const ReceivableModal = ({setShowModal, showModal}: ModalState) => {
         Total
       </Text>
       <TextInput
+        value={receivable.total ? currency(receivable.total) : ''}
+        onChangeText={text => {
+          const total: number = parseInt(
+            text.replace(/[^0-9]/g, '').slice(0, 9),
+          );
+          setReceivable(receivable => ({...receivable, total}));
+        }}
         inputMode="numeric"
         className="bg-border px-3 py-1 rounded-md text-accent font-sourceSansProSemiBold text-base"
       />

@@ -30,9 +30,10 @@ export const getDate = (
   created_at: string | number,
   weekday: boolean = false,
   showToday: boolean = true,
+  months: boolean = false,
 ) => {
   const format: Intl.DateTimeFormatOptions = {
-    month: '2-digit',
+    month: months ? 'short' : '2-digit',
     day: '2-digit',
     year: 'numeric',
     weekday: weekday ? 'long' : undefined,

@@ -1,5 +1,46 @@
 import {Dispatch, SetStateAction, useEffect, useRef, useState} from 'react';
 import {Animated, Text, TouchableOpacity, View} from 'react-native';
+import Each from './Each';
+
+function deepEqual(a: any, b: any): boolean {
+  if (a === b) return true;
+  if (typeof a !== typeof b) return false;
+  if (typeof a === 'string' && typeof b === 'string') return a === b;
+  if (Array.isArray(a) && Array.isArray(b)) {
+    if (a.length !== b.length) {
+      return false;
+    }
+    for (let i = 0; i < a.length; i++) {
+      if (!deepEqual(a[i], b[i])) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  if (
+    typeof a === 'object' &&
+    typeof b === 'object' &&
+    a !== null &&
+    b !== null
+  ) {
+    const aKeys = Object.keys(a);
+    const bKeys = Object.keys(b);
+
+    if (aKeys.length !== bKeys.length) {
+      return false;
+    }
+
+    for (const key of aKeys) {
+      if (!b.hasOwnProperty(key) || !deepEqual(a[key], b[key])) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  return false;
+}
 
 const FilterType = <T,>({
   types,
@@ -7,11 +48,13 @@ const FilterType = <T,>({
   setType,
   show,
   title,
+  defaultTitle = 'Semua',
 }: {
-  types: [string, string];
-  title: [string, string];
-  type: string | null;
-  setType: Dispatch<SetStateAction<string | null>>;
+  defaultTitle?: string;
+  types: T[];
+  title: string[];
+  type: T | null;
+  setType: (date: T | null) => void | Dispatch<SetStateAction<T | null>>;
   show: boolean;
 }) => {
   const hiddenValue = useRef(new Animated.Value(0)).current;
@@ -40,6 +83,7 @@ const FilterType = <T,>({
         show && 'mb-2'
       } rounded-full`}>
       <TouchableOpacity
+        disabled={!show}
         onPress={() => setType(null)}
         className={`${
           type == null && show && 'bg-interaction'
@@ -48,33 +92,29 @@ const FilterType = <T,>({
           className={`font-sourceSansProSemiBold ${
             !type ? 'text-white' : 'text-primary'
           }`}>
-          Semua
+          {defaultTitle}
         </Text>
       </TouchableOpacity>
-      <TouchableOpacity
-        onPress={() => setType(types[0])}
-        className={`${
-          type == types[0] && show && 'bg-interaction'
-        } py-2 items-center rounded-full flex-auto`}>
-        <Text
-          className={`font-sourceSansProSemiBold ${
-            type == types[0] ? 'text-white' : 'text-primary'
-          }`}>
-          {title[0]}
-        </Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        onPress={() => setType(types[1])}
-        className={`${
-          type == types[1] && show && 'bg-interaction'
-        } py-2 items-center rounded-full flex-auto`}>
-        <Text
-          className={`font-sourceSansProSemiBold ${
-            type == types[1] ? 'text-white' : 'text-primary'
-          }`}>
-          {title[1]}
-        </Text>
-      </TouchableOpacity>
+      <Each
+        of={types}
+        render={(item, index) => (
+          <TouchableOpacity
+            key={index}
+            disabled={!show}
+            onPress={() => setType(item)}
+            className={`${
+              deepEqual(type, item) && show && 'bg-interaction'
+            } py-2 items-center rounded-full flex-auto`}>
+            <Text
+              className={`font-sourceSansProSemiBold ${
+                deepEqual(type, item) ? 'text-white' : 'text-primary'
+              }`}>
+              {title[index]}
+            </Text>
+          </TouchableOpacity>
+        )}
+        ifNull={<></>}
+      />
     </Animated.View>
   );
 };

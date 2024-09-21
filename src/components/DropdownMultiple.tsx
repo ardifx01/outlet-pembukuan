@@ -1,23 +1,36 @@
-import React, {useState} from 'react';
-import {StyleSheet, View, TouchableOpacity, Text} from 'react-native';
-import {MultiSelect} from 'react-native-element-dropdown';
+import React, {
+  Dispatch,
+  ForwardedRef,
+  forwardRef,
+  LegacyRef,
+  RefObject,
+  SetStateAction,
+  useRef,
+  useState,
+} from 'react';
+import {
+  StyleSheet,
+  View,
+  TouchableOpacity,
+  Text,
+  Dimensions,
+} from 'react-native';
+import {IMultiSelectRef, MultiSelect} from 'react-native-element-dropdown';
 import {IconAdjustments, IconTrash, IconX} from 'tabler-icons-react-native';
 import colors from '../../assets/colors';
 
-const data = [
-  {label: 'Item 1', value: '1'},
-  {label: 'Item 2', value: '2'},
-  {label: 'Item 3', value: '3'},
-  {label: 'Item 4', value: '4'},
-  {label: 'Item 5', value: '5'},
-  {label: 'Item 6', value: '6'},
-  {label: 'Item 7', value: '7'},
-  {label: 'Item 8', value: '8'},
-];
-
-const MultiSelectComponent = () => {
-  const [selected, setSelected] = useState<string[]>([]);
-
+const MultiSelectComponent = (
+  {
+    data,
+    selected,
+    setSelected,
+  }: {
+    data: {label: string; value: string}[];
+    selected: string[];
+    setSelected: Dispatch<SetStateAction<string[]>>;
+  },
+  ref: ForwardedRef<IMultiSelectRef>,
+) => {
   const renderItem = (item: {label: string; value: string}) => {
     return (
       <View style={styles.item}>
@@ -27,19 +40,19 @@ const MultiSelectComponent = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <View>
       <MultiSelect
+        ref={ref as RefObject<IMultiSelectRef>}
         mode="modal"
         // dropdownPosition="top"
+        inside
         alwaysRenderSelectedItem
-        style={styles.dropdown}
-        placeholderStyle={{
-          fontFamily: 'SourceSansProSemiBold',
-          fontSize: 17,
-          color: 'white',
+        style={{
+          paddingHorizontal: 20,
+          height: selected.length == 0 ? 0 : 'auto',
+          paddingTop: 4,
         }}
         selectedTextStyle={styles.selectedTextStyle}
-        inputSearchStyle={styles.inputSearchStyle}
         itemContainerStyle={{backgroundColor: 'white'}}
         containerStyle={{width: 200}}
         itemTextStyle={{color: 'red'}}
@@ -48,7 +61,7 @@ const MultiSelectComponent = () => {
         iconColor={selected.length != 0 ? colors.primary : '#cacaca'}
         labelField="label"
         valueField="value"
-        placeholder="Filters"
+        placeholder=""
         value={selected}
         maxHeight={230}
         searchPlaceholder="Search..."
@@ -56,12 +69,15 @@ const MultiSelectComponent = () => {
           setSelected(item);
         }}
         renderRightIcon={() => {
-          return <IconAdjustments color={'white'} size={20} />;
+          return <></>;
         }}
         renderItem={renderItem}
+        visibleSelectedItem
         renderSelectedItem={(item, unSelect) => (
-          <TouchableOpacity onPress={() => unSelect && unSelect(item)}>
-            <View className="flex-row justify-center items-center bg-border mt-2 mr-1 px-3 py-1 rounded-full">
+          <TouchableOpacity
+            // className="absolute -top-[70px]"
+            onPress={() => unSelect && unSelect(item)}>
+            <View className="flex-row justify-center items-center bg-border mt-2 mr-1 pl-4 pr-3 py-1 rounded-full">
               <Text className="font-sourceSansPro text-base text-accent">
                 {item.label}
               </Text>
@@ -74,31 +90,14 @@ const MultiSelectComponent = () => {
   );
 };
 
-export default MultiSelectComponent;
+const MultiSelectForwardRef = forwardRef(MultiSelectComponent);
+export default MultiSelectForwardRef;
 
 const styles = StyleSheet.create({
-  dropdown: {
-    backgroundColor: colors.interaction,
-    paddingHorizontal: 16,
-    // paddingVertical: 4,
-    width: 110,
-    borderRadius: 5,
-  },
   selectedTextStyle: {
     fontSize: 16,
     fontFamily: 'SourceSansPro',
     color: colors.primary,
-  },
-  iconStyle: {
-    width: 28,
-    height: 28,
-  },
-  inputSearchStyle: {
-    height: 40,
-    fontSize: 16,
-  },
-  icon: {
-    marginRight: 5,
   },
   item: {
     padding: 17,

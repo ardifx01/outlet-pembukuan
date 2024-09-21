@@ -1,25 +1,8 @@
-import {
-  LegacyRef,
-  MutableRefObject,
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
-import {Alert, Text, TextInput, View} from 'react-native';
-import {
-  AutocompleteDropdown,
-  AutocompleteDropdownContextProvider,
-  AutocompleteDropdownRef,
-} from 'react-native-autocomplete-dropdown';
+import {lazy, useCallback, useContext, useEffect, useState} from 'react';
+import {Text, TextInput, View} from 'react-native';
+import {AutocompleteDropdownContextProvider} from 'react-native-autocomplete-dropdown';
 import colors from '../../../../assets/colors';
-import {
-  IconCheck,
-  IconChevronDown,
-  IconCircleX,
-  IconX,
-} from 'tabler-icons-react-native';
+import {IconCheck, IconX} from 'tabler-icons-react-native';
 import ToggleButton from '../../ToggleButton';
 import Button from '../../button/Button';
 import {
@@ -27,10 +10,6 @@ import {
   TrxModalInitialContext,
 } from '../../../screens/HomeScreens/TransactionScreen';
 import DropdownTextInput from '../../DropdownTextInput';
-import Dropdown from '../../../Dropdown';
-import {ScrollView} from 'react-native';
-import {Category} from '../../../global/types/category';
-import {Product} from '../../../screens/ProductScreens/ProductScreen';
 import http from '../../../lib/axios';
 import responseHandler from '../../../lib/responseHandler';
 import {ErrorHandler} from '../../../lib/Error';
@@ -40,6 +19,7 @@ import {
   AuthContext,
   initAuthContext,
 } from '../../../context/AuthenticationContext';
+import {isAxiosError} from 'axios';
 export type Suggestions = {
   id: string;
   title: string;
@@ -56,7 +36,7 @@ const SaleForm = ({headerOffset}: {headerOffset: number}) => {
   }>({note: '', total: 0});
   const [toggle, setToggle] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [emptyRes, setEmptyRes] = useState('Tidak ditemukan');
+  const [emptyRes, setEmptyRes] = useState<string>();
   const [validation, setValidation] = useState<string | null>(null);
   const [dropdownTextInput, setDropdownTextInput] = useState<string>('');
   const {setShowModal, refresh} = useContext(
@@ -69,14 +49,6 @@ const SaleForm = ({headerOffset}: {headerOffset: number}) => {
   const [productSuggestions, setProductSuggestions] = useState<
     Suggestions[] | null
   >([]);
-  useEffect(() => {
-    if (category) {
-      setEmptyRes('Tidak ditemukan');
-    } else {
-      setEmptyRes('Pilih Kategori terlebih dulu');
-    }
-    setProductSuggestions(null);
-  }, [category]);
   const getCategorySuggestions = useCallback(async () => {
     setLoading(true);
     try {
@@ -97,7 +69,13 @@ const SaleForm = ({headerOffset}: {headerOffset: number}) => {
   const getProductSuggestions = useCallback(
     async (search: string) => {
       setDropdownTextInput(search);
-      if (!category || search.length < 2) return;
+      if (!category) {
+        console.log('no category');
+        setEmptyRes('Pilih kategori terlebih dahulu');
+        setProductSuggestions([]);
+        return;
+      }
+      if (search.length < 2) return;
       setLoading(true);
       try {
         const res = await http.get('api/product/list', {
@@ -119,16 +97,16 @@ const SaleForm = ({headerOffset}: {headerOffset: number}) => {
           setProductSuggestions(suggesstions);
         });
       } catch (err) {
+        if (isAxiosError(err) && err.response?.status) {
+          setEmptyRes('Tidak ditemukan produk');
+          setProductSuggestions([]);
+        }
         setLoading(false);
         ErrorHandler(err);
       }
     },
     [category],
   );
-
-  useEffect(() => {
-    console.log(dropdownTextInput);
-  }, [dropdownTextInput]);
 
   const onSubmit = async () => {
     if (
@@ -171,7 +149,11 @@ const SaleForm = ({headerOffset}: {headerOffset: number}) => {
 
   useEffect(() => {
     getCategorySuggestions();
-  }, [getCategorySuggestions]);
+  }, []);
+
+  useEffect(() => {
+    console.log(productSuggestions);
+  }, [productSuggestions]);
 
   return (
     <View className="bg-white justify-between pb-3 flex-1">
@@ -195,11 +177,12 @@ const SaleForm = ({headerOffset}: {headerOffset: number}) => {
             onChangeText={getProductSuggestions}
             setSelect={setProduct}
             data={productSuggestions}
-            placeHolder="Pilih Produk"
+            placeHolder="Cari Produk"
             useFilter={false}
             debounce={1500}
             fixOpenSuggestion={false}
             loading={loading}
+            onFocus={() => setProductSuggestions(null)}
           />
           <View className="flex flex-row justify-between mt-2 ">
             <View className="w-[48%] justify-center flex items-center">

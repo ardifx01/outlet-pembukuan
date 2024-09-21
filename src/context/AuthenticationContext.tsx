@@ -2,6 +2,7 @@ import {
   Dispatch,
   SetStateAction,
   createContext,
+  useCallback,
   useEffect,
   useState,
 } from 'react';
@@ -27,6 +28,7 @@ import {BASE_URL} from '@env';
 import http from '../lib/axios';
 import sessionExp from '../components/popup/sessionExp';
 import networkError from '../components/popup/networkError';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type crendential = {
   email: string;
@@ -41,16 +43,17 @@ export type userLogin = {
 
 type registerCrendential = {
   username: string;
+  otp: string;
 } & crendential;
 
 export type initAuthContext = {
   isLoading: boolean;
-  userToken: string | null;
+  userToken: string;
   error: string;
   setError: Dispatch<SetStateAction<string>>;
   login: (credential: crendential) => Promise<void>;
   logout: () => Promise<void>;
-  register: (credential: registerCrendential) => void;
+  register: (credential: registerCrendential) => Promise<void>;
   setIsLoading: Dispatch<SetStateAction<boolean>>;
 };
 
@@ -83,7 +86,6 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({
       setUserToken(access_token);
       await storingAccessToken(access_token);
       await storingRefreshToken(refresh_token);
-      setIsLoading(false);
     } catch (error: any) {
       if (isAxiosError(error)) {
         const error_message = error.response?.data.error || error.message;
@@ -92,6 +94,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({
       } else {
         setError('Ooops!, Something went wrong');
       }
+    } finally {
       setIsLoading(false);
     }
   };
@@ -128,23 +131,25 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({
     }
   };
 
-  const register = (credential: registerCrendential): void => {
-    try {
-      setIsLoading(true);
-    } catch (error) {}
+  const register = async (credential: registerCrendential): Promise<void> => {
+    await req({
+      url: 'api/user/register',
+      method: 'POST',
+      data: credential,
+    });
   };
 
-  const isLoggedIn = async () => {
+  const isLoggedIn = useCallback(async () => {
     try {
       setIsLoading(true);
-      const userToken = await getAccessToken();
+      const userToken = await AsyncStorage.getItem('access_token');
       setUserToken(userToken!);
       setIsLoading(false);
     } catch (error) {
       setIsLoading(false);
       // console.log(error);
     }
-  };
+  }, [userToken]);
 
   // Interceptor Axios
 
@@ -221,7 +226,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({
   useEffect(() => {
     setError('');
     isLoggedIn();
-  }, []);
+  }, [isLoggedIn]);
   return (
     <AuthContext.Provider
       value={{
