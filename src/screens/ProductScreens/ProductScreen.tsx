@@ -24,9 +24,10 @@ import useDelete from '../../hooks/useDelete';
 import {ErrorHandler} from '../../lib/Error';
 import MultiSelectComponent from '../../components/DropdownMultiple';
 import MyAlert from '../../components/popup/MyAlert';
-import {IMultiSelectRef} from '@ar1su/react-native-element-dropdown';
+import {IMultiSelectRef} from 'react-native-element-dropdown';
 import {StockScreenRouteProps} from './StockScreen';
 import {NavContext, navInitialContext} from '../../navigation/TabNavigation';
+import {useDebounce} from 'use-debounce';
 
 export type Product = {
   id: number;
@@ -41,9 +42,12 @@ const ProductScreen = ({route}: {route: StockScreenRouteProps}) => {
   const [checkbox, setCheckbox] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [selected, setSelected] = useState<string[]>([]);
+  const [search, setSearch] = useState<string | null>(null);
+  const [debouncedSearch] = useDebounce(search, 1500);
   const {data: products, refresh} = useFetch<Product>({
     url: 'api/product/list',
     setRefreshing: setRefreshing,
+    search: debouncedSearch,
   });
   const {itemSelected, deleteItems, select, unSelect, deleteItem} = useDelete(
     'api/product',
@@ -123,6 +127,9 @@ const ProductScreen = ({route}: {route: StockScreenRouteProps}) => {
         <View className="ml-6 border-b-[1px] flex-row flex-1 mt-1 pb-[5px] w-2/5 border-accent">
           <IconSearch size={23} color={colors.accent} />
           <TextInput
+            onChangeText={text => {
+              !text ? setSearch(null) : setSearch(text);
+            }}
             className="p-0 mx-1 h-6 text-[15px]"
             placeholder="Cari di produk"
             placeholderTextColor={colors.accent}

@@ -121,13 +121,7 @@ const RegisterScreen = () => {
           </TouchableOpacity>
         </View>
         <TouchableOpacity
-          // onPress={submitHandler}
-          onPress={() =>
-            navigation.navigate('Verification', {
-              type: 'register',
-              data: credential,
-            })
-          }
+          onPress={submitHandler}
           className="bg-accent w-full items-center py-2 rounded-lg mb-10">
           <Text className="font-sourceSansProSemiBold text-lg text-white">
             Daftar

@@ -11,7 +11,13 @@ const Header: React.FC<{children: ReactNode}> = ({children}) => {
   );
 };
 
-const HeaderBtn = ({onRefresh}: {onRefresh: () => void}) => {
+const HeaderBtn = ({
+  onRefresh,
+  showEdit = true,
+}: {
+  onRefresh: () => void;
+  showEdit?: boolean;
+}) => {
   const {editMode, setEditMode, setNavHide} = useContext(
     NavContext,
   ) as navInitialContext;
@@ -35,6 +41,7 @@ const HeaderBtn = ({onRefresh}: {onRefresh: () => void}) => {
             <IconRefresh size={31} color="#fff" stroke={1.5} />
           </TouchableOpacity>
           <TouchableOpacity
+            style={{display: showEdit ? 'flex' : 'none'}}
             onPress={() => {
               setEditMode(true);
             }}>

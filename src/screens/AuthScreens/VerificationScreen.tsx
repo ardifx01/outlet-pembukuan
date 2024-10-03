@@ -11,19 +11,47 @@ import {
 import {ErrorHandler} from '../../lib/Error';
 import http from '../../lib/axios';
 import responseHandler from '../../lib/responseHandler';
+import useCountdown from '../../hooks/useCountdown';
+import {formatSeconds} from '../../lib/utils';
 type Props = NativeStackScreenProps<RootStackParamList, 'Verification'>;
 
 const VerificationScreen = ({navigation, route}: Props) => {
   const [otp, setOtp] = useState('');
   const {register, setIsLoading} = useContext(AuthContext) as initAuthContext;
+  const {seconds, isRunning, startTimer} = useCountdown({initialSeconds: 120});
 
-  const type = route.params.type;
-  const data = route.params.data;
+  const params = route.params;
+
+  const reSendOtp = async () => {
+    try {
+      setIsLoading(true);
+      if (params.type == 'register') {
+        await http.post('/api/send-otp', {
+          username: params.data.username,
+          email: params.data.email,
+        });
+      } else {
+        await http.post('/api/forgot-password', {
+          email: params.data.email,
+        });
+      }
+      setIsLoading(false);
+      startTimer();
+      Alert.alert('Sukses!', 'Kode otp berhasil dikirim');
+    } catch (error) {
+      setIsLoading(false);
+      ErrorHandler(error);
+    }
+  };
+
+  useEffect(() => {
+    startTimer();
+  }, []);
   const resetPassHandler = async () => {
     try {
       setIsLoading(true);
       const res = await http.post('/api/verify-otp', {
-        email: data.email,
+        email: params.data.email,
         otp,
       });
       const response = responseHandler(res);
@@ -37,7 +65,7 @@ const VerificationScreen = ({navigation, route}: Props) => {
   const registerHandler = async () => {
     try {
       setIsLoading(true);
-      await register({...(data as Register['data']), otp});
+      await register({...(params.data as Register['data']), otp});
       setIsLoading(false);
       Alert.alert('Berhasil', 'Registrasi sukses silahkan Login', [
         {
@@ -59,7 +87,7 @@ const VerificationScreen = ({navigation, route}: Props) => {
         <Text className="mt-3 text-lg text-center text-placeholder font-sourceSansPro">
           Silahkan masukkan kode otp yang di kirimkan ke email{' '}
           <Text className="font-sourceSansProSemiBold text-primary">
-            {data.email}
+            {params.data.email}
           </Text>
         </Text>
 
@@ -78,15 +106,25 @@ const VerificationScreen = ({navigation, route}: Props) => {
           autoFocus
           inputCount={6}
         />
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text className="font-sourceSansProSemiBold text-accent mt-2">
-            Email Salah?
-          </Text>
-        </TouchableOpacity>
+        <View className="flex-row w-full justify-around mt-3">
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Text className="font-sourceSansProSemiBold text-accent mt-2">
+              Email Salah?
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity disabled={isRunning} onPress={reSendOtp}>
+            <Text
+              className={`font-sourceSansProSemiBold ${
+                isRunning ? 'text-accent/50' : ' text-accent'
+              } mt-2`}>
+              Kirim Ulang {isRunning && formatSeconds(seconds)}
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
       <TouchableOpacity
         disabled={otp.length < 6}
-        onPress={type == 'register' ? registerHandler : resetPassHandler}
+        onPress={params.type == 'register' ? registerHandler : resetPassHandler}
         // onPress={() =>
         //   navigation.navigate('ResetPassword', {
         //     token: 'klj;adsjkadsjkdssdkjdsjkadjksjkladsjk',

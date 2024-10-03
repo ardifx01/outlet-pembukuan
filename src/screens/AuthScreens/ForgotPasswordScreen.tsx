@@ -24,7 +24,6 @@ const ForgotPasswordScreen = ({navigation}: Props) => {
       await http.post('/api/forgot-password', {email});
       setIsLoading(false);
       navigation.navigate('Verification', {type: 'reset', data: {email}});
-      // throw new ResponseError(401, "Email not found")
     } catch (error: any) {
       setIsLoading(false);
       console.log(ErrorHandler(error));
@@ -49,6 +48,12 @@ const ForgotPasswordScreen = ({navigation}: Props) => {
             onChangeText={text => setEmail(text)}
           />
           <TouchableOpacity
+            // onPress={() =>
+            //   navigation.navigate('Verification', {
+            //     type: 'reset',
+            //     data: {email: ''},
+            //   })
+            // }
             onPress={submitHandler}
             disabled={!email}
             className="my-5 bg-interaction w-full items-center py-2 rounded-lg">

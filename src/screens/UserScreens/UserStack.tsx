@@ -10,6 +10,7 @@ import {memo} from 'react';
 import UpdateEmailScreen from './SecurityScreens/UpdateEmailScreen';
 import UpdatePasswordScreen from './SecurityScreens/UpdatePasswordScreen';
 import ProfileScreen from './ProfileScreen';
+import ContactScreen from './ContactScreen';
 
 export type RootStackParamList = {
   Account:
@@ -25,6 +26,7 @@ export type RootStackParamList = {
   UpdateEmail: {} | undefined;
   UpdatePassword: {} | undefined;
   ProfileScreen: {user: {username: string; email: string}};
+  ContactScreen: {} | undefined;
 };
 
 const UserStack = () => {
@@ -74,6 +76,14 @@ const UserStack = () => {
         component={ProfileScreen}
         options={{
           title: 'My Profil',
+          ...headerOption,
+        }}
+      />
+      <Stack.Screen
+        name="ContactScreen"
+        component={ContactScreen}
+        options={{
+          title: 'Hubungi Kami',
           ...headerOption,
         }}
       />

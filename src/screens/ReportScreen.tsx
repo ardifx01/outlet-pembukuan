@@ -150,6 +150,7 @@ const ReportScreen = () => {
           Laporan
         </Text>
         <HeaderBtn
+          showEdit={false}
           onRefresh={() => {
             getReport();
           }}

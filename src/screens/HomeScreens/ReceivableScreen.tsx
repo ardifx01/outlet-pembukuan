@@ -40,6 +40,7 @@ import {
 import ToggleButton from '../../components/ToggleButton';
 import currency from '../../lib/currency';
 import {NavContext, navInitialContext} from '../../navigation/TabNavigation';
+import {useDebounce} from 'use-debounce';
 
 const ReceivableScreen = ({route}: {route: HomeScreenRouteProps}) => {
   const {dates, setDates} = useContext(DatesContext) as DatesContextInit;
@@ -50,7 +51,6 @@ const ReceivableScreen = ({route}: {route: HomeScreenRouteProps}) => {
   const {setNavHide, editMode} = useContext(NavContext) as navInitialContext;
   const [checkbox, setCheckbox] = useState(false);
   const [time, setTime] = [dates.receivable, setRecDate];
-  // const [time, setTime] = useState<string[] | null>(null);
   const [paid, setPaid] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [search, setSearch] = useState<null | string>(null);
@@ -58,12 +58,13 @@ const ReceivableScreen = ({route}: {route: HomeScreenRouteProps}) => {
   const [receivable, setReceivable] = useState<Receivable | null>(null);
   const [toggle, setToggle] = useState(false);
   const [totalReceivable, setTotalReceivable] = useState(0);
+  const [debouncedSearch] = useDebounce(search, 2000);
   const {data, refresh} = useFetch<Receivable>({
     url: 'api/receivable',
     setRefreshing: setRefreshing,
     paid,
     time,
-    search,
+    search: debouncedSearch,
   });
   const {select, unSelect, itemSelected, deleteItem, deleteItems} = useDelete(
     'api/receivable',
@@ -196,6 +197,10 @@ const ReceivableScreen = ({route}: {route: HomeScreenRouteProps}) => {
             <View className="ml-6 border-b-[1px] flex-row flex pb-[5px] w-2/5 border-accent">
               <IconSearch size={23} color={colors.accent} />
               <TextInput
+                onChangeText={text => {
+                  !text ? setSearch(null) : setSearch(text);
+                }}
+                value={search || ''}
                 className="p-0 mx-1 h-6 text-[15px]"
                 placeholder="Cari di piutang"
                 placeholderTextColor={colors.accent}

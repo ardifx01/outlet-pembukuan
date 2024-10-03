@@ -8,6 +8,7 @@ import {
 import {
   IconEdit,
   IconFileDescription,
+  IconLogout,
   IconMessage,
   IconQuestionMark,
   IconSettings,
@@ -50,13 +51,6 @@ const UserScreen = ({navigation, route}: Props) => {
         <Text className="text-white font-sourceSansProSemiBold px-4 py-[1px] text-2xl">
           Akun
         </Text>
-        <TouchableOpacity
-          onPress={confirmationAlert}
-          className="mr-4 bg-err px-6 py-1 rounded-full">
-          <Text className="text-white font-sourceSansProSemiBold text-base">
-            Keluar
-          </Text>
-        </TouchableOpacity>
       </Header>
       <View className="flex items-center mt-6">
         <View className="p-6 bg-border rounded-full">
@@ -83,12 +77,6 @@ const UserScreen = ({navigation, route}: Props) => {
             Profil
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity className="border-b-[1px] border-secondary pl-1 flex flex-row">
-          <IconFileDescription size={24} color={colors.primary} />
-          <Text className="text-primary text-lg font-sourceSansProSemiBold pl-1">
-            Catatan
-          </Text>
-        </TouchableOpacity>
         <TouchableOpacity
           onPress={() => navigation.navigate('Security')}
           className="border-b-[1px] border-secondary pl-1 flex flex-row">
@@ -97,13 +85,9 @@ const UserScreen = ({navigation, route}: Props) => {
             Keamanan akun
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity className="border-b-[1px] border-secondary pl-1 flex flex-row">
-          <IconSettings size={24} color={colors.primary} />
-          <Text className="text-primary text-lg font-sourceSansProSemiBold pl-1">
-            Pengaturan aplikasi
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity className="border-b-[1px] border-secondary pl-1 flex flex-row">
+        <TouchableOpacity
+          onPress={() => navigation.navigate('ContactScreen')}
+          className="border-b-[1px] border-secondary pl-1 flex flex-row">
           <IconMessage size={24} color={colors.primary} />
           <Text className="text-primary text-lg font-sourceSansProSemiBold pl-1">
             Hubungi kami
@@ -113,6 +97,14 @@ const UserScreen = ({navigation, route}: Props) => {
           <IconQuestionMark size={24} color={colors.primary} />
           <Text className="text-primary text-lg font-sourceSansProSemiBold pl-1">
             FAQ
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={confirmationAlert}
+          className="border-b-[1px] border-secondary pl-1 flex flex-row">
+          <IconLogout size={24} color={colors.primary} />
+          <Text className="text-primary text-lg font-sourceSansProSemiBold pl-1">
+            Keluar
           </Text>
         </TouchableOpacity>
       </View>
