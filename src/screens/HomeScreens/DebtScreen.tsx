@@ -254,14 +254,7 @@ const DebtScreen = ({route}: {route: HomeScreenRouteProps}) => {
         }
         id="content"
         className="mt-2"
-        scrollEventThrottle={400}
-        onScroll={({nativeEvent}) => {
-          if (isCloseToBottom(nativeEvent)) {
-            setNavHide(true);
-          } else {
-            !editMode && setNavHide(false);
-          }
-        }}>
+        scrollEventThrottle={400}>
         <Each
           of={data}
           render={(item, index) => (

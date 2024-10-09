@@ -8,7 +8,7 @@ import ToggleButton from '../ToggleButton';
 import {IconX} from 'tabler-icons-react-native';
 import days from '../../lib/time';
 type enumFilter = 'Minggu' | 'Bulan' | 'Tahun';
-type time = [string, string, enumFilter?] | null;
+export type time = [string, string, enumFilter?] | null;
 type CMProps = {
   showModal: boolean;
   setShowModal: Dispatch<SetStateAction<boolean>>;

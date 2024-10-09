@@ -14,7 +14,7 @@ import Receivable from './ReceivableScreen';
 import Debt from './DebtScreen';
 import Header, {HeaderBtn} from '../../components/Header';
 import days from '../../lib/time';
-import CalendarModal from '../../components/modal/CalendarModal';
+import CalendarModal, {time} from '../../components/modal/CalendarModal';
 import {Calendar} from 'react-native-calendars';
 
 export type HomeScreenRouteProps = {
@@ -148,7 +148,12 @@ const HomeScreen = () => {
           renderTabBar={TabBarView}
         />
       </DatesContext.Provider>
-      <CalendarModal {...{setShowModal, showModal, setTime, time}} />
+      <CalendarModal
+        setShowModal={setShowModal}
+        showModal={showModal}
+        setTime={setTime as (date: time) => void}
+        time={time as time}
+      />
     </>
   );
 };

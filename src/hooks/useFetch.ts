@@ -22,7 +22,7 @@ export default function useFetch<T>({
   setRefreshing: Dispatch<SetStateAction<boolean>>;
   search?: string | null;
   time?: string[] | null;
-  category?: [] | null;
+  category?: string[] | null;
   paid?: boolean | null;
   type?: string | null;
 }) {

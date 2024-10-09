@@ -36,9 +36,11 @@ const EditScreen = ({navigation, route}: Props) => {
   };
   return (
     <View className="min-h-full bg-white px-4 pt-7">
-      <Text className="font-sourceSansProSemiBold text-base">Nama</Text>
+      <Text className="font-sourceSansProSemiBold text-base text-primary">
+        Nama
+      </Text>
       <TextInput
-        className="border-b border-border h-9 text-xl p-0 -mt-1  font-sourceSansProSemiBold"
+        className="border-b border-border h-9 text-xl p-0 -mt-1  font-sourceSansProSemiBold text-primary"
         value={name}
         onChangeText={text => setName(text)}
       />

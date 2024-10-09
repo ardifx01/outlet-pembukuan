@@ -60,7 +60,7 @@ const MultiSelectComponent = (
         data={data}
         iconColor={selected.length != 0 ? colors.primary : '#cacaca'}
         labelField="label"
-        valueField="value"
+        valueField="label"
         placeholder=""
         value={selected}
         maxHeight={230}

@@ -178,14 +178,7 @@ const CategoryScreen = ({route}: {route: StockScreenRouteProps}) => {
         }
         id="content"
         className="mt-4 "
-        scrollEventThrottle={400}
-        onScroll={({nativeEvent}) => {
-          if (isCloseToBottom(nativeEvent)) {
-            setNavHide(true);
-          } else {
-            !editMode && setNavHide(false);
-          }
-        }}>
+        scrollEventThrottle={400}>
         <Each<Category>
           of={searchDobouced ? searchResult : categories}
           render={(item: Category, index: number) => (

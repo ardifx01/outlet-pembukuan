@@ -258,14 +258,7 @@ const Transaction = ({route}: {route: HomeScreenRouteProps}) => {
         }
         id="content"
         className="mt-4"
-        scrollEventThrottle={400}
-        onScroll={({nativeEvent}) => {
-          if (isCloseToBottom(nativeEvent)) {
-            setNavHide(true);
-          } else {
-            !editMode && setNavHide(false);
-          }
-        }}>
+        scrollEventThrottle={400}>
         <Each<transaction<number>>
           of={sortedTransaction}
           render={(item, index) =>
