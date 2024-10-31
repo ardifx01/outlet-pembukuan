@@ -1,41 +1,55 @@
-import {View, Text, TouchableOpacity, Dimensions} from 'react-native';
-import React, {memo, useCallback, useContext, useEffect, useState} from 'react';
-import Header, {HeaderBtn} from '../components/Header';
 import {
+  View,
+  Text,
+  TouchableOpacity,
+  Dimensions,
+  ScrollView,
+} from 'react-native';
+import React, {memo, useCallback, useContext, useEffect, useState} from 'react';
+import Header, {HeaderBtn} from '../../components/Header';
+import {
+  IconArrowsMaximize,
   IconChartLine,
   IconChartPie,
   IconEditCircle,
 } from 'tabler-icons-react-native';
-import colors from '../../assets/colors';
-import FilterType from '../components/FilterType';
-import days, {getDate} from '../lib/time';
-import http from '../lib/axios';
-import responseHandler from '../lib/responseHandler';
-import {ErrorHandler} from '../lib/Error';
-import {AuthContext, initAuthContext} from '../context/AuthenticationContext';
-import currency, {formatNumber} from '../lib/currency';
+import colors from '../../../assets/colors';
+import FilterType from '../../components/FilterType';
+import days, {getDate} from '../../lib/time';
+import http from '../../lib/axios';
+import responseHandler from '../../lib/responseHandler';
+import {ErrorHandler} from '../../lib/Error';
+import {
+  AuthContext,
+  initAuthContext,
+} from '../../context/AuthenticationContext';
+import currency, {formatNumber} from '../../lib/currency';
 import {LineChart, PieChart} from 'react-native-chart-kit';
-import CalendarModal from '../components/modal/CalendarModal';
-import NotFound from '../components/NotFound';
-import {isArrayEmpty, isObjectEmpty} from '../lib/utils';
-import {acumulationTransaction, monthDates} from '../lib/report';
+import CalendarModal from '../../components/modal/CalendarModal';
+import NotFound from '../../components/NotFound';
+import {isArrayEmpty, isObjectEmpty} from '../../lib/utils';
+import {acumulationTransaction, monthDates} from '../../lib/report';
+import ChartFullScreen from '../../components/modal/ChartFullScreen';
+import DotChart from '../../components/DotChart';
 
 type Sales = {basic_price: number; selling_price: number; created_at: string}[];
-type Report = {label: string[]; dataset: number[]};
+export type Report = {label: string[]; dataset: number[]};
+type TimePeriod = 'Minggu' | 'Bulan' | 'Tahun';
+type StateTuple = [string, string, TimePeriod?] | null;
 const ReportScreen = () => {
-  const [time, setTime] = useState<
-    [string, string, ('Minggu' | 'Bulan' | 'Tahun')?] | null
-  >(null);
+  const [time, setTime] = useState<StateTuple>(null);
   const [report, setReport] = useState<Report | null>(null);
   const [totalHpp, setTotalHpp] = useState(0);
   const [totalTransaction, setTotalTransaction] = useState({
     sales: 0,
     expense: 0,
   });
-  const {setIsLoading} = useContext(AuthContext) as initAuthContext;
+  const {setIsLoading, isLoading} = useContext(AuthContext) as initAuthContext;
   const [showDotIndex, setShowDotIndex] = useState<number | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [showChart, setShowChart] = useState(true);
+  const [showFullChart, setShowFullChart] = useState(false);
+  const [dotSize, setDotSize] = useState({w: 0, h: 0});
 
   const months = [
     'Jan',
@@ -61,6 +75,11 @@ const ReportScreen = () => {
     'Sabtu',
     'Minggu',
   ];
+
+  const dates = Array.from(
+    {length: days().endOf('month').get('date')},
+    (_, i) => (i + 1).toString(),
+  );
 
   let period: string;
   if (time) {
@@ -104,20 +123,11 @@ const ReportScreen = () => {
               key => (dataset[parseInt(key) - 1] = profit[key]),
             );
           } else {
-            label = monthDates.map(date => `Tanggal ${date.join('-')}`);
-            dataset = new Array(4).fill(0);
-            Object.keys(profit).every(key => {
-              switch (key) {
-                case '1-7':
-                  dataset[0] = profit[key];
-                case '7-15':
-                  dataset[1] = profit[key];
-                case '16-23':
-                  dataset[2] = profit[key];
-                default:
-                  dataset[3] = profit[key];
-              }
-            });
+            label = dates;
+            dataset = new Array(dates.length).fill(0);
+            Object.keys(profit).every(
+              key => (dataset[parseInt(key) - 1] = profit[key]),
+            );
           }
           setReport({dataset, label});
         } else setReport(null);
@@ -198,100 +208,101 @@ const ReportScreen = () => {
         {...{setType: setTime, type: time}}
       />
 
-      {time?.at(2) && !isObjectEmpty(totalTransaction) && (
-        <TouchableOpacity
-          onPress={() => setShowChart(show => !show)}
-          className="flex-row ml-5 rounded-full bg-border mt-1 self-start">
-          <View
-            className={`py-1 px-2 rounded-full ${
-              showChart ? 'bg-interaction' : 'bg-border'
-            }`}>
-            <IconChartLine
-              size={20}
-              color={showChart ? 'white' : colors.interaction}
-            />
-          </View>
-          <View
-            className={`py-1 px-2 rounded-full ${
-              showChart ? 'bg-border' : 'bg-interaction'
-            }`}>
-            <IconChartPie
-              color={showChart ? colors.interaction : 'white'}
-              size={20}
-            />
-          </View>
-        </TouchableOpacity>
+      {time?.at(2) && !isObjectEmpty(totalTransaction) && !isLoading && (
+        <View className="flex-row justify-between items-center">
+          <TouchableOpacity
+            onPress={() => setShowChart(show => !show)}
+            className="flex-row ml-5 rounded-full bg-border mt-1 self-start">
+            <View
+              className={`py-1 px-2 rounded-full ${
+                showChart ? 'bg-interaction' : 'bg-border'
+              }`}>
+              <IconChartLine
+                size={20}
+                color={showChart ? 'white' : colors.interaction}
+              />
+            </View>
+            <View
+              className={`py-1 px-2 rounded-full ${
+                showChart ? 'bg-border' : 'bg-interaction'
+              }`}>
+              <IconChartPie
+                color={showChart ? colors.interaction : 'white'}
+                size={20}
+              />
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => setShowFullChart(true)}
+            className={`mr-5 ${time[2] == 'Bulan' ? 'flex' : 'hidden'}`}>
+            <IconArrowsMaximize color={colors.interaction} size={24} />
+          </TouchableOpacity>
+        </View>
       )}
 
-      {report && !isArrayEmpty(report.dataset) && showChart && time?.at(2) ? (
+      {report &&
+      !isArrayEmpty(report.dataset) &&
+      showChart &&
+      time?.at(2) &&
+      !isLoading ? (
         <>
           <Text className="font-sourceSansProSemiBold mt-2 text-center text-interaction">
             Grafik Pendapatan
           </Text>
-          <LineChart
-            data={{
-              labels: report.label,
-              datasets: [
-                {
-                  data: report.dataset,
+          <ScrollView horizontal={true} style={{maxHeight: 225}}>
+            <LineChart
+              data={{
+                labels: report.label,
+                datasets: [
+                  {
+                    data: report.dataset,
+                  },
+                ],
+              }}
+              segments={5}
+              width={time[2] == 'Bulan' ? 700 : Dimensions.get('window').width}
+              height={220}
+              yAxisInterval={1}
+              formatYLabel={yValue => formatNumber(parseInt(yValue))}
+              fromZero
+              renderDotContent={({x, y, indexData, index}) => (
+                <TouchableOpacity
+                  key={index}
+                  onPress={() => setShowDotIndex(null)}
+                  style={{
+                    display: showDotIndex == index ? 'flex' : 'none',
+                  }}>
+                  <DotChart {...{index, indexData, x, y}} />
+                </TouchableOpacity>
+              )}
+              onDataPointClick={({index}) => {
+                setShowDotIndex(dotIndex => (index == dotIndex ? null : index));
+              }}
+              chartConfig={{
+                backgroundColor: '#fff',
+                backgroundGradientFrom: '#fff',
+                backgroundGradientTo: '#fff',
+                decimalPlaces: 0,
+                color: (opacity = 1) => `rgba(64, 50, 250, ${opacity})`,
+                labelColor: (opacity = 1) => `rgba(50, 40, 199, ${opacity})`,
+                style: {
+                  borderRadius: 16,
                 },
-              ],
-            }}
-            segments={5}
-            width={Dimensions.get('window').width}
-            height={220}
-            yAxisInterval={1}
-            formatYLabel={yValue => formatNumber(parseInt(yValue))}
-            fromZero
-            renderDotContent={({x, y, indexData, index}) => (
-              <TouchableOpacity
-                key={index}
-                onPress={() => setShowDotIndex(null)}
-                style={{
-                  position: 'absolute',
-                  top: y + 5,
-                  left: x,
-                  backgroundColor: colors.interaction,
-                  paddingVertical: 2,
-                  paddingHorizontal: 8,
-                  borderTopRightRadius: 50,
-                  borderTopLeftRadius: 50,
-                  borderBottomRightRadius: 50,
-                  transform: [{rotate: '90deg'}],
-                  display: showDotIndex == index ? 'flex' : 'none',
-                  zIndex: 100,
-                }}>
-                <Text className="font-sourceSansProSemiBold, text-white">
-                  {formatNumber(indexData)}
-                </Text>
-              </TouchableOpacity>
-            )}
-            onDataPointClick={({index}) => {
-              setShowDotIndex(dotIndex => (index == dotIndex ? null : index));
-            }}
-            chartConfig={{
-              backgroundColor: '#fff',
-              backgroundGradientFrom: '#fff',
-              backgroundGradientTo: '#fff',
-              decimalPlaces: 0,
-              color: (opacity = 1) => `rgba(64, 50, 250, ${opacity})`,
-              labelColor: (opacity = 1) => `rgba(50, 40, 199, ${opacity})`,
-              style: {
+                propsForDots: {
+                  r: '4',
+                  strokeWidth: '1',
+                },
+              }}
+              bezier
+              style={{
+                marginVertical: 8,
                 borderRadius: 16,
-              },
-              propsForDots: {
-                r: '4',
-                strokeWidth: '1',
-              },
-            }}
-            bezier
-            style={{
-              marginVertical: 8,
-              borderRadius: 16,
-            }}
-          />
+              }}
+            />
+          </ScrollView>
+          <Text>Hellos</Text>
         </>
-      ) : !isObjectEmpty(totalTransaction) ? (
+      ) : !isObjectEmpty(totalTransaction) && !isLoading ? (
         <PieChart
           data={[
             {
@@ -330,7 +341,7 @@ const ReportScreen = () => {
           !time ? 'Hari' : 'periode'
         } ini :(`}</NotFound>
       )}
-      {!isObjectEmpty(totalTransaction) ? (
+      {!isObjectEmpty(totalTransaction) && !isLoading ? (
         <View className="mt-2 mb-4 rounded-xl mx-4 py-2 bg-border">
           <View className="flex-row justify-between my-1 mx-4">
             <Text className="text-primary text-base font-sourceSansProSemiBold">
@@ -385,6 +396,9 @@ const ReportScreen = () => {
         </View>
       ) : null}
       <CalendarModal {...{setShowModal, showModal, setTime, time}} />
+      <ChartFullScreen
+        {...{report, setShow: setShowFullChart, show: showFullChart}}
+      />
     </View>
   );
 };

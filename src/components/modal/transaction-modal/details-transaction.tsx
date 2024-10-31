@@ -35,7 +35,7 @@ const DetailTransaction = ({
 
         {transaction?.type == 'sale' ? (
           <>
-            <View className="flex-row w-full">
+            <View className="flex-row w-full border-border py-1 border-b">
               <Text className="flex-1 text-interaction font-sourceSansPro text-base">
                 Nama Produk
               </Text>
@@ -43,7 +43,7 @@ const DetailTransaction = ({
                 {transaction.name}
               </Text>
             </View>
-            <View className="flex-row w-full">
+            <View className="flex-row w-full border-border py-1 border-b">
               <Text className="flex-1 text-interaction font-sourceSansPro text-base">
                 Kategori
               </Text>
@@ -51,7 +51,7 @@ const DetailTransaction = ({
                 {transaction.category}
               </Text>
             </View>
-            <View className="flex-row w-full">
+            <View className="flex-row w-full border-border py-1 border-b">
               <Text className="flex-1 text-interaction font-sourceSansPro text-base">
                 Modal
               </Text>
@@ -59,7 +59,7 @@ const DetailTransaction = ({
                 Rp {currency(transaction.basic_price)}
               </Text>
             </View>
-            <View className="flex-row w-full">
+            <View className="flex-row w-full border-border py-1 border-b">
               <Text className="flex-1 text-interaction font-sourceSansPro text-base">
                 Harga
               </Text>
@@ -70,7 +70,7 @@ const DetailTransaction = ({
           </>
         ) : (
           <>
-            <View className="flex-row w-full">
+            <View className="flex-row w-full border-border py-1 border-b">
               <Text className="flex-1 text-interaction font-sourceSansPro text-base">
                 Pengeluaran
               </Text>
@@ -78,7 +78,7 @@ const DetailTransaction = ({
                 {transaction?.name}
               </Text>
             </View>
-            <View className="flex-row w-full">
+            <View className="flex-row w-full border-border py-1 border-b">
               <Text className="flex-1 text-interaction font-sourceSansPro text-base">
                 Total
               </Text>
@@ -88,7 +88,7 @@ const DetailTransaction = ({
             </View>
           </>
         )}
-        <View className="flex-row w-full">
+        <View className="flex-row w-full border-border py-1 border-b">
           <Text className="flex-1 text-interaction font-sourceSansPro text-base">
             Jam
           </Text>
@@ -96,7 +96,7 @@ const DetailTransaction = ({
             {transaction && getTime(transaction.created_at)}
           </Text>
         </View>
-        <View className="flex-row w-full">
+        <View className="flex-row w-full border-border py-1 border-b">
           <Text className="flex-1 text-interaction font-sourceSansPro text-base">
             Tanggal
           </Text>

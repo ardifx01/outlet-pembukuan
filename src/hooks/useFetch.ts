@@ -15,14 +15,14 @@ export default function useFetch<T>({
   search = null,
   time = null,
   type = null,
-  category = null,
+  categories = null,
   paid = null,
 }: {
   url: string;
   setRefreshing: Dispatch<SetStateAction<boolean>>;
   search?: string | null;
   time?: string[] | null;
-  category?: string[] | null;
+  categories?: string[] | null;
   paid?: boolean | null;
   type?: string | null;
 }) {
@@ -37,7 +37,7 @@ export default function useFetch<T>({
         params: {
           search,
           time: newTime,
-          category,
+          categories,
           paid,
           type,
         },
@@ -50,7 +50,7 @@ export default function useFetch<T>({
     } finally {
       setRefreshing(false);
     }
-  }, [search, time, category, paid, type]);
+  }, [search, time, categories, paid, type]);
 
   useEffect(() => {
     fetchProduct();

@@ -7,7 +7,7 @@ import {
   IconShoppingBag,
 } from 'tabler-icons-react-native';
 import colors from '../../assets/colors';
-import ReportScreen from '../screens/ReportScreen';
+import ReportScreen from '../screens/ReportScreen/ReportScreen';
 import {
   createContext,
   memo,

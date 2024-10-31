@@ -14,6 +14,7 @@ import {
   initAuthContext,
 } from '../../context/AuthenticationContext';
 import {emailRegex} from '../../lib/utils';
+import Announcement from '../../components/modal/Announcement';
 
 const LoginScreen: React.FC = () => {
   const [hidePassword, setHidePassword] = useState(true);
@@ -95,8 +96,6 @@ const LoginScreen: React.FC = () => {
           onPress={loginHandler}
           disabled={
             credential.email.length == 0 && credential.password.length == 0
-              ? true
-              : false
           }
           className="bg-accent w-full items-center py-2 rounded-lg mb-10">
           <Text className="font-sourceSansProSemiBold text-lg text-white">
@@ -125,6 +124,7 @@ const LoginScreen: React.FC = () => {
           </Text>
         </TouchableOpacity>
       </View>
+      <Announcement closed={false} />
     </View>
   );
 };

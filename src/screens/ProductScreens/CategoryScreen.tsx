@@ -135,10 +135,16 @@ const CategoryScreen = ({route}: {route: StockScreenRouteProps}) => {
                 setSearch(text);
               }}
               value={search}
-              className="p-0 mx-1 h-6 text-[15px] text-accent"
+              className="p-0 mx-1 h-6 text-[15px] text-accent flex-1"
               placeholder="Cari di kategori"
               placeholderTextColor={colors.accent}
             />
+            <TouchableOpacity
+              style={{display: search.length > 0 ? 'flex' : 'none'}}
+              className={'mt-1'}
+              onPress={() => setSearch('')}>
+              <IconX color={colors.err} size={20} />
+            </TouchableOpacity>
           </View>
           {search && (
             <TouchableOpacity

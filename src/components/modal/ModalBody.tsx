@@ -1,5 +1,5 @@
 import {Dispatch, ReactNode, SetStateAction} from 'react';
-import {LayoutChangeEvent, Text, TextInput, View} from 'react-native';
+import {LayoutChangeEvent, Text, View} from 'react-native';
 import ReactNativeModal from 'react-native-modal';
 import Button from '../button/Button';
 import {IconCheck, IconX} from 'tabler-icons-react-native';

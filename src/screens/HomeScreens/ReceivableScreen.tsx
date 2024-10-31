@@ -41,6 +41,7 @@ import ToggleButton from '../../components/ToggleButton';
 import currency from '../../lib/currency';
 import {NavContext, navInitialContext} from '../../navigation/TabNavigation';
 import {useDebounce} from 'use-debounce';
+import SearchInput from '../../components/SearchInput';
 
 const ReceivableScreen = ({route}: {route: HomeScreenRouteProps}) => {
   const {dates, setDates} = useContext(DatesContext) as DatesContextInit;
@@ -194,18 +195,11 @@ const ReceivableScreen = ({route}: {route: HomeScreenRouteProps}) => {
       <View className="flex-row justify-between items-center mb-2">
         {!editMode ? (
           <>
-            <View className="ml-6 border-b-[1px] flex-row flex pb-[5px] w-2/5 border-accent">
-              <IconSearch size={23} color={colors.accent} />
-              <TextInput
-                onChangeText={text => {
-                  !text ? setSearch(null) : setSearch(text);
-                }}
-                value={search || ''}
-                className="p-0 mx-1 h-6 text-[15px]"
-                placeholder="Cari di piutang"
-                placeholderTextColor={colors.accent}
-              />
-            </View>
+            <SearchInput
+              placeHolder={'Cari di piutang'}
+              search={search}
+              setSearch={setSearch}
+            />
             {!paid && (
               <View className="mr-4 flex-row items-center">
                 <Text className="text-base text-accent font-sourceSansPro mr-3">

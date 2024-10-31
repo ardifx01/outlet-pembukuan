@@ -20,6 +20,7 @@ import {
 import {
   IconAdjustments,
   IconBrandCashapp,
+  IconFilterX,
   IconSearch,
   IconTrash,
   IconX,
@@ -50,6 +51,11 @@ import {
   HomeScreenRouteProps,
 } from './HomeScreen';
 import {NavContext, navInitialContext} from '../../navigation/TabNavigation';
+import FilterTransaction from '../../components/FilterTransaction';
+import {isObjectEmpty} from '../../lib/utils';
+import {all} from 'axios';
+import SearchInput from '../../components/SearchInput';
+
 export type TrxModalInitialContext = {
   showModal: boolean;
   setShowModal: Dispatch<SetStateAction<boolean>>;
@@ -59,17 +65,22 @@ export const TrxModalContext = createContext<null | TrxModalInitialContext>(
   null,
 );
 
+export type filter = {
+  type: 'all' | 'sale' | 'expense';
+  category: string[];
+};
+
 const Transaction = ({route}: {route: HomeScreenRouteProps}) => {
   const {dates, setDates} = useContext(DatesContext) as DatesContextInit;
   const setTrxDate = (date: string[] | null) =>
     setDates(dates => ({...dates, transaction: date}));
   const [showModal, setShowModal] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
-  const {setNavHide, editMode} = useContext(NavContext) as navInitialContext;
+  const {editMode} = useContext(NavContext) as navInitialContext;
   const [checkbox, setCheckbox] = useState(false);
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const [date, setDate] = [dates.transaction, setTrxDate];
-  const [type, setType] = useState<string | null>(null);
+  const [filter, setFilter] = useState<filter>({type: 'all', category: []});
   const [search, setSearch] = useState<string | null>(null);
   const [edit, setEdit] = useState<Edit | null>(null);
   const [detailTransaction, setDetailTransaction] = useState<
@@ -83,7 +94,8 @@ const Transaction = ({route}: {route: HomeScreenRouteProps}) => {
     url: 'api/transaction',
     setRefreshing: setRefreshing,
     time: date,
-    type,
+    type: filter.type == 'all' ? null : filter.type,
+    categories: filter.category,
     search: debouncedSearch,
   });
   useEffect(() => {
@@ -121,10 +133,13 @@ const Transaction = ({route}: {route: HomeScreenRouteProps}) => {
     setRefreshing(true);
     refresh();
     setRefreshing(false);
+    setDate(null);
+    setSearch(null);
+    setFilter({type: 'all', category: []});
   }, []);
 
   useEffect(() => {
-    route.setRefresh(curr => ({...curr, transaction: refresh}));
+    route.setRefresh(curr => ({...curr, transaction: onRefresh}));
   }, []);
 
   useEffect(() => {
@@ -172,7 +187,6 @@ const Transaction = ({route}: {route: HomeScreenRouteProps}) => {
       },
     );
   };
-
   return (
     <View className={`bg-white flex flex-col h-full pt-3`}>
       <AddButton onPress={modalToggle} />
@@ -196,41 +210,31 @@ const Transaction = ({route}: {route: HomeScreenRouteProps}) => {
             ]}
             {...{setType: setDate, type: date}}
           />
-          <FilterType
-            show={showFilter}
-            title={['Penjualan', 'Pengeluaran']}
-            types={['sale', 'expense']}
-            {...{setType, type}}
-          />
         </>
       )}
       <View className="flex-row justify-between">
         {!editMode ? (
           <View className="pl-6 pr-4 items-center flex-row justify-between w-full">
-            <View className="border-b-[1px] flex-row flex mt-1 pb-[5px] w-2/5 border-accent">
-              <IconSearch size={23} color={colors.accent} />
-              <TextInput
-                onChangeText={text => {
-                  !text ? setSearch(null) : setSearch(text);
-                }}
-                value={search || ''}
-                className="p-0 mx-1 h-6 text-[15px] text-accent"
-                placeholder="Cari di transaksi"
-                placeholderTextColor={colors.accent}
-              />
-            </View>
-            <TouchableOpacity
-              className="mt-2"
-              onPress={() => setShowFilter(showFilter => !showFilter)}>
-              {showFilter ? (
-                <IconX size={30} color={colors.accent} />
-              ) : (
+            <SearchInput
+              placeHolder={'Cari di transaksi'}
+              search={search}
+              setSearch={setSearch}
+            />
+            <View className="flex-row items-center gap-x-2">
+              <TouchableOpacity
+                onPress={() => setFilter({type: 'all', category: []})}
+                style={{
+                  display: isObjectEmpty(filter, 'all') ? 'none' : 'flex',
+                }}>
+                <IconFilterX color={colors.err} size={20} />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => setShowFilter(show => !show)}>
                 <IconAdjustments size={30} color={colors.accent} />
-              )}
-              {type && !showFilter && (
-                <View className="absolute bg-err h-2 w-2 rounded-full -top-1 -right-1"></View>
-              )}
-            </TouchableOpacity>
+                {!isObjectEmpty(filter, 'all') && !showFilter && (
+                  <View className="absolute bg-err h-2 w-2 rounded-full top-0 right-0"></View>
+                )}
+              </TouchableOpacity>
+            </View>
           </View>
         ) : (
           <View className="px-4 flex-row justify-between w-full items-center">
@@ -333,6 +337,14 @@ const Transaction = ({route}: {route: HomeScreenRouteProps}) => {
         transaction={detailTransaction}
       />
       <EditTransaction {...{edit, setEdit, refresh}} />
+      <FilterTransaction
+        {...{
+          setShowFilter,
+          showFilter,
+          filter,
+          setFilter,
+        }}
+      />
     </View>
   );
 };

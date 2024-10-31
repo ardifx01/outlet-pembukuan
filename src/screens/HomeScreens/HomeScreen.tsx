@@ -4,7 +4,6 @@ import {
   Dispatch,
   memo,
   SetStateAction,
-  useEffect,
   useState,
 } from 'react';
 import {SceneMap, TabBar, TabView} from 'react-native-tab-view';
@@ -15,7 +14,7 @@ import Debt from './DebtScreen';
 import Header, {HeaderBtn} from '../../components/Header';
 import days from '../../lib/time';
 import CalendarModal, {time} from '../../components/modal/CalendarModal';
-import {Calendar} from 'react-native-calendars';
+import Announcement from "../../components/modal/Announcement";
 
 export type HomeScreenRouteProps = {
   key: string;
@@ -154,6 +153,7 @@ const HomeScreen = () => {
         setTime={setTime as (date: time) => void}
         time={time as time}
       />
+      <Announcement />
     </>
   );
 };

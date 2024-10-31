@@ -1,13 +1,16 @@
 {
   "name": "OutletPembukuan",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": true,
   "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios",
     "lint": "eslint .",
     "start": "react-native start",
-    "test": "jest"
+    "test": "jest",
+    "bump-patch": "npm version patch --no-git-tag-version && bundle exec fastlane bump",
+    "bump-minor": "npm version minor --no-git-tag-version && bundle exec fastlane bump",
+    "bump-major": "npm version major --no-git-tag-version && bundle exec fastlane bump"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^1.22.3",
@@ -20,6 +23,7 @@
     "core-js": "^3.36.0",
     "dayjs": "^1.11.11",
     "jwt-decode": "^4.0.0",
+    "lodash": "^4.17.21",
     "nativewind": "^2.0.11",
     "npm": "^10.7.0",
     "react": "18.2.0",
@@ -34,8 +38,10 @@
     "react-native-otp-textinput": "^1.1.6",
     "react-native-pager-view": "^6.2.3",
     "react-native-popup-menu": "^0.16.1",
+    "react-native-radio-buttons-group": "^3.1.0",
     "react-native-safe-area-context": "^4.8.1",
     "react-native-screens": "^3.29.0",
+    "react-native-splash-screen": "^3.3.0",
     "react-native-svg": "^14.1.0",
     "react-native-svg-transformer": "^1.4.0",
     "react-native-tab-view": "^3.5.2",
@@ -51,6 +57,7 @@
     "@react-native/metro-config": "^0.72.11",
     "@tsconfig/react-native": "^3.0.5",
     "@types/jest": "^29.5.12",
+    "@types/lodash": "^4.17.12",
     "@types/react": "^18.3.3",
     "@types/react-native-calendars": "^1.1264.7",
     "@types/react-navigation": "^3.4.0",

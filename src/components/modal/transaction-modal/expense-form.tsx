@@ -15,6 +15,7 @@ import {
   AuthContext,
   initAuthContext,
 } from '../../../context/AuthenticationContext';
+import {debounce} from 'lodash';
 
 type Expense = {
   name: string;
@@ -35,7 +36,7 @@ const ExpenseForm = () => {
   const [validation, setValidation] = useState<string | null>(null);
   const {setIsLoading} = useContext(AuthContext) as initAuthContext;
 
-  const addExpense = async () => {
+  const addExpense = debounce(async () => {
     if (
       !expense ||
       !expense.name ||
@@ -60,7 +61,7 @@ const ExpenseForm = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, 300);
 
   useEffect(() => {
     setExpense(null);

@@ -20,6 +20,7 @@ import {
   initAuthContext,
 } from '../../../context/AuthenticationContext';
 import {isAxiosError} from 'axios';
+import {debounce} from 'lodash';
 export type Suggestions = {
   id: string;
   title: string;
@@ -39,6 +40,7 @@ const SaleForm = ({headerOffset}: {headerOffset: number}) => {
   const [emptyRes, setEmptyRes] = useState<string>();
   const [validation, setValidation] = useState<string | null>(null);
   const [dropdownTextInput, setDropdownTextInput] = useState<string>('');
+  const [productPrice, setProductPrice] = useState(false);
   const {setShowModal, refresh} = useContext(
     TrxModalContext,
   ) as TrxModalInitialContext;
@@ -78,9 +80,10 @@ const SaleForm = ({headerOffset}: {headerOffset: number}) => {
       if (search.length < 2) return;
       setLoading(true);
       try {
+        console.log(category);
         const res = await http.get('api/product/list', {
           params: {
-            filter: [category],
+            categories: [category],
             search,
           },
         });
@@ -108,7 +111,7 @@ const SaleForm = ({headerOffset}: {headerOffset: number}) => {
     [category],
   );
 
-  const onSubmit = async () => {
+  const onSubmit = debounce(async () => {
     if (
       !product ||
       (!product.title && !dropdownTextInput) ||
@@ -141,7 +144,7 @@ const SaleForm = ({headerOffset}: {headerOffset: number}) => {
       setIsLoading(false);
       ErrorHandler(error);
     }
-  };
+  }, 300);
 
   useEffect(() => {
     setValidation(null);
@@ -152,8 +155,13 @@ const SaleForm = ({headerOffset}: {headerOffset: number}) => {
   }, []);
 
   useEffect(() => {
-    console.log(productSuggestions);
-  }, [productSuggestions]);
+    if (product?.selling_price && productPrice)
+      setReceivable(receivable => ({
+        ...receivable,
+        total: product.selling_price!,
+      }));
+    else setReceivable(receivable => ({...receivable, total: 0}));
+  }, [product, productPrice]);
 
   return (
     <View className="bg-white justify-between pb-3 flex-1">
@@ -261,9 +269,20 @@ const SaleForm = ({headerOffset}: {headerOffset: number}) => {
                 style={{textAlignVertical: 'top'}}
                 className="bg-border px-3 rounded-md text-accent font-sourceSansProSemiBold text-base"
               />
-              <Text className="font-sourceSansProSemiBold text-base pl-2 text-accent mr-4">
-                Total
-              </Text>
+              <View className="flex-row justify-between items-center mt-2">
+                <Text className="font-sourceSansProSemiBold text-base pl-2 text-accent mr-4">
+                  Total
+                </Text>
+                <View className="flex-row items-center">
+                  <Text className="text-sm text-accent font-sourceSansPro mr-2">
+                    Harga produk
+                  </Text>
+                  <ToggleButton
+                    toggle={productPrice}
+                    setToggle={setProductPrice}
+                  />
+                </View>
+              </View>
               <TextInput
                 onChangeText={text => {
                   const total: number = parseInt(
@@ -276,6 +295,7 @@ const SaleForm = ({headerOffset}: {headerOffset: number}) => {
                     };
                   });
                 }}
+                editable={!productPrice}
                 value={receivable.total ? currency(receivable.total) : ''}
                 inputMode="numeric"
                 className="bg-border px-3 py-1 rounded-md text-accent font-sourceSansProSemiBold text-base"

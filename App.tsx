@@ -7,10 +7,14 @@ import {
 } from './src/context/AuthenticationContext';
 import MyTabs from './src/navigation/TabNavigation';
 import AuthNavigation from './src/navigation/AuthNavigation';
+import SplashScreen from 'react-native-splash-screen';
 
 const App = (): JSX.Element => {
   useEffect(() => {
     preloadDropdownComponents();
+    setTimeout(() => {
+      SplashScreen.hide();
+    }, 1000);
   }, []);
   return (
     <NavigationContainer>

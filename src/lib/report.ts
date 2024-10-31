@@ -24,11 +24,7 @@ export function acumulationTransaction(
     } else if (period == 'Tahun') {
       dateTrx = (days(created_at).get('month') + 1).toString();
     } else {
-      let date = days(created_at).get('date');
-      const ranges = monthDates.filter(
-        range => date >= range[0] && date <= range[1],
-      );
-      dateTrx = ranges[0].join('');
+      dateTrx = days(created_at).get('date').toString();
     }
     if (!profit[dateTrx]) {
       profit[dateTrx] = 0;

@@ -78,6 +78,7 @@ const styles = StyleSheet.create({
     height: 40,
     fontSize: 16,
     backgroundColor: colors.border,
+    color: colors.primary,
   },
   itemContainerStyle: {
     backgroundColor: colors.border,
