@@ -14,7 +14,6 @@ import {
   initAuthContext,
 } from '../../context/AuthenticationContext';
 import {emailRegex} from '../../lib/utils';
-import Announcement from '../../components/modal/Announcement';
 
 const LoginScreen: React.FC = () => {
   const [hidePassword, setHidePassword] = useState(true);
@@ -124,7 +123,6 @@ const LoginScreen: React.FC = () => {
           </Text>
         </TouchableOpacity>
       </View>
-      <Announcement closed={false} />
     </View>
   );
 };

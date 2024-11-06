@@ -1,10 +1,11 @@
-import {
+import React, {
   Dispatch,
   SetStateAction,
   createContext,
   useCallback,
   useEffect,
   useState,
+  useMemo,
 } from 'react';
 import Loading from '../components/loading';
 import {Alert} from 'react-native';
@@ -25,10 +26,13 @@ import axios, {
   isAxiosError,
 } from 'axios';
 import {BASE_URL} from '@env';
-import http from '../lib/axios';
+import http, {httpd} from '../lib/axios';
 import sessionExp from '../components/popup/sessionExp';
 import networkError from '../components/popup/networkError';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import versionNumber from 'react-native-version-number';
+import {AnnouncementMsg} from '../components/modal/Announcement';
+import AnnouncementModal from '../components/modal/AnnouncementModal';
 
 type crendential = {
   email: string;
@@ -41,7 +45,7 @@ export type userLogin = {
   refresh_token: string;
 };
 
-type registerCrendential = {
+type registerCredential = {
   username: string;
   otp: string;
 } & crendential;
@@ -53,7 +57,7 @@ export type initAuthContext = {
   setError: Dispatch<SetStateAction<string>>;
   login: (credential: crendential) => Promise<void>;
   logout: () => Promise<void>;
-  register: (credential: registerCrendential) => Promise<void>;
+  register: (credential: registerCredential) => Promise<void>;
   setIsLoading: Dispatch<SetStateAction<boolean>>;
 };
 
@@ -131,7 +135,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({
     }
   };
 
-  const register = async (credential: registerCrendential): Promise<void> => {
+  const register = async (credential: registerCredential): Promise<void> => {
     await req({
       url: 'api/user/register',
       method: 'POST',
@@ -197,6 +201,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({
         ...error.config,
         _retry: false,
       } as customConfig;
+
       if (error.status == 401 && !originalRequest._retry) {
         originalRequest._retry = true;
         const refreshToken = await getRefreshToken();

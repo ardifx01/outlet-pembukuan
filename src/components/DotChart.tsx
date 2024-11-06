@@ -40,7 +40,7 @@ const DotChart = ({
           {translateY: -dotSize.h / 2},
         ],
         display: 'flex',
-        zIndex: 100,
+        zIndex: 99999,
       }}>
       <Text className="font-sourceSansProSemiBold, text-white">
         {formatNumber(indexData)}

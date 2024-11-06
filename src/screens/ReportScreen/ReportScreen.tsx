@@ -249,7 +249,7 @@ const ReportScreen = () => {
           <Text className="font-sourceSansProSemiBold mt-2 text-center text-interaction">
             Grafik Pendapatan
           </Text>
-          <ScrollView horizontal={true} style={{maxHeight: 225}}>
+          <ScrollView horizontal={true} style={{maxHeight: 235}}>
             <LineChart
               data={{
                 labels: report.label,
@@ -294,10 +294,11 @@ const ReportScreen = () => {
                 },
               }}
               bezier
-              style={{
-                marginVertical: 8,
-                borderRadius: 16,
-              }}
+              style={
+                {
+                  // marginBottom: -10,
+                }
+              }
             />
           </ScrollView>
           <Text>Hellos</Text>
@@ -342,7 +343,7 @@ const ReportScreen = () => {
         } ini :(`}</NotFound>
       )}
       {!isObjectEmpty(totalTransaction) && !isLoading ? (
-        <View className="mt-2 mb-4 rounded-xl mx-4 py-2 bg-border">
+        <View className="mb-4 rounded-xl mx-4 py-2 bg-border -mt-3">
           <View className="flex-row justify-between my-1 mx-4">
             <Text className="text-primary text-base font-sourceSansProSemiBold">
               Total Pendapatan Penjualan
