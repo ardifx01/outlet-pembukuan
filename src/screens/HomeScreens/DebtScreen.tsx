@@ -201,6 +201,7 @@ const DebtScreen = ({route}: {route: HomeScreenRouteProps}) => {
               placeHolder={'Cari di utang'}
               search={search}
               setSearch={setSearch}
+              style={{marginLeft: 20}}
             />
             {!paid && (
               <View className="mr-4 flex-row items-center">

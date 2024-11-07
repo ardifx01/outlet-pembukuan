@@ -18,8 +18,8 @@ import {emailRegex} from '../../lib/utils';
 const LoginScreen: React.FC = () => {
   const [hidePassword, setHidePassword] = useState(true);
   const [credential, setCredential] = useState({
-    email: 'user@mail.com',
-    password: 'root1234',
+    email: '',
+    password: '',
   });
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const {error, setError, login} = useContext(AuthContext) as initAuthContext;

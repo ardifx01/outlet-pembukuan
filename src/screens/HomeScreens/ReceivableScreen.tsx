@@ -199,6 +199,7 @@ const ReceivableScreen = ({route}: {route: HomeScreenRouteProps}) => {
               placeHolder={'Cari di piutang'}
               search={search}
               setSearch={setSearch}
+              style={{marginLeft: 20}}
             />
             {!paid && (
               <View className="mr-4 flex-row items-center">

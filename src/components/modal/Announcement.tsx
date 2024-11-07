@@ -28,7 +28,7 @@ const Announcement = () => {
         },
       );
     } catch (e: any) {
-      if (e.response.status === 426) {
+      if (e.response?.status === 426) {
         const link = e.response.data.error.link;
         setShow(true);
         if (link)

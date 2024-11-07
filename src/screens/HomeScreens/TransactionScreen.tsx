@@ -214,7 +214,7 @@ const Transaction = ({route}: {route: HomeScreenRouteProps}) => {
       )}
       <View className="flex-row justify-between">
         {!editMode ? (
-          <View className="pl-6 pr-4 items-center flex-row justify-between w-full">
+          <View className="pl-6 pr-4 mt-2 items-center flex-row justify-between w-full">
             <SearchInput
               placeHolder={'Cari di transaksi'}
               search={search}
