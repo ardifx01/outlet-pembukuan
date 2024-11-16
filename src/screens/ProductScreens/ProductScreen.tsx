@@ -40,7 +40,7 @@ export type Product = {
 };
 const ProductScreen = ({route}: {route: StockScreenRouteProps}) => {
   const [showModal, setShowModal] = useState(false);
-  const {editMode, setNavHide} = useContext(NavContext) as navInitialContext;
+  const {editMode} = useContext(NavContext) as navInitialContext;
   const [checkbox, setCheckbox] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [selected, setSelected] = useState<string[]>([]);
@@ -53,13 +53,6 @@ const ProductScreen = ({route}: {route: StockScreenRouteProps}) => {
     search: debouncedSearch,
     categories: selected,
   });
-  const {data: categories} = useFetch<Category>({
-    url: 'api/category/list',
-    setRefreshing,
-  });
-  const [categoryList, setCategoryList] = useState<
-    Array<{label: string; value: string}>
-  >([]);
   const {itemSelected, deleteItems, select, unSelect, deleteItem} = useDelete(
     'api/product',
     refresh,
@@ -78,16 +71,6 @@ const ProductScreen = ({route}: {route: StockScreenRouteProps}) => {
   useEffect(() => {
     !showModal && edit && setEdit(null);
   }, [showModal]);
-
-  useEffect(() => {
-    if (!categories) return;
-    setCategoryList(
-      categories.map(category => ({
-        label: category.name,
-        value: category.id.toString(),
-      })),
-    );
-  }, [categories]);
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);

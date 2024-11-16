@@ -65,7 +65,9 @@ const ForgotPasswordScreen = ({navigation}: Props) => {
             className="flex-row items-center gap-x-1 justify-center"
             onPress={() => navigation.navigate('Login')}>
             <IconArrowNarrowLeft size={20} color={colors.placeholder} />
-            <Text>Kembali ke login</Text>
+            <Text className={'text-placeholder font-sourceSansPro text-base'}>
+              Kembali ke login
+            </Text>
           </TouchableOpacity>
         </View>
       </View>

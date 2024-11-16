@@ -195,17 +195,15 @@ const Transaction = ({route}: {route: HomeScreenRouteProps}) => {
           <FilterType
             show={true}
             defaultTitle="Hari ini"
-            title={['Minggu ini', 'Bulan ini']}
+            title={['Kemarin', 'Minggu ini']}
             types={[
+              [
+                days().subtract(1, 'day').startOf('day').toISOString(),
+                days().subtract(1, 'day').endOf('day').toISOString(),
+              ],
               [
                 days().startOf('week').toISOString(),
                 days().endOf('week').toISOString(),
-                'week',
-              ],
-              [
-                days().startOf('month').toISOString(),
-                days().endOf('month').toISOString(),
-                'month',
               ],
             ]}
             {...{setType: setDate, type: date}}

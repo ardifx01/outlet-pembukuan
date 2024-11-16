@@ -166,236 +166,239 @@ const ReportScreen = () => {
           }}
         />
       </Header>
-      <View className="my-4 rounded-lg flex-row justify-between px-3 mx-4 py-2 bg-border">
-        <View>
-          <Text className="text-primary text-base font-sourceSansProSemiBold">
-            Periode
-          </Text>
-          <Text className="text-accent text-base font-sourceSansProSemiBold">
-            {period}
-          </Text>
-        </View>
-        <TouchableOpacity
-          onPress={() => setShowModal(true)}
-          className="border border-accent rounded-lg px-2 items-center flex-row">
-          <IconEditCircle size={25} color={colors.accent} />
-          <Text className="text-accent text-base font-sourceSansProSemiBold ml-1">
-            Ubah Periode
-          </Text>
-        </TouchableOpacity>
-      </View>
-      <FilterType
-        defaultTitle="Hari Ini"
-        show={true}
-        title={['Minggu Ini', 'Bulan Ini', 'Tahun Ini']}
-        types={[
-          [
-            days().startOf('week').toISOString(),
-            days().endOf('week').toISOString(),
-            'Minggu',
-          ],
-          [
-            days().startOf('month').toISOString(),
-            days().endOf('month').toISOString(),
-            'Bulan',
-          ],
-          [
-            days().startOf('year').toISOString(),
-            days().endOf('year').toISOString(),
-            'Tahun',
-          ],
-        ]}
-        {...{setType: setTime, type: time}}
-      />
-
-      {time?.at(2) && !isObjectEmpty(totalTransaction) && !isLoading && (
-        <View className="flex-row justify-between items-center">
-          <TouchableOpacity
-            onPress={() => setShowChart(show => !show)}
-            className="flex-row ml-5 rounded-full bg-border mt-1 self-start">
-            <View
-              className={`py-1 px-2 rounded-full ${
-                showChart ? 'bg-interaction' : 'bg-border'
-              }`}>
-              <IconChartLine
-                size={20}
-                color={showChart ? 'white' : colors.interaction}
-              />
-            </View>
-            <View
-              className={`py-1 px-2 rounded-full ${
-                showChart ? 'bg-border' : 'bg-interaction'
-              }`}>
-              <IconChartPie
-                color={showChart ? colors.interaction : 'white'}
-                size={20}
-              />
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => setShowFullChart(true)}
-            className={`mr-5 ${time[2] == 'Bulan' ? 'flex' : 'hidden'}`}>
-            <IconArrowsMaximize color={colors.interaction} size={24} />
-          </TouchableOpacity>
-        </View>
-      )}
-
-      {report &&
-      !isArrayEmpty(report.dataset) &&
-      showChart &&
-      time?.at(2) &&
-      !isLoading ? (
-        <>
-          <Text className="font-sourceSansProSemiBold mt-2 text-center text-interaction">
-            Grafik Pendapatan
-          </Text>
-          <ScrollView horizontal={true} style={{maxHeight: 235}}>
-            <LineChart
-              data={{
-                labels: report.label,
-                datasets: [
-                  {
-                    data: report.dataset,
-                  },
-                ],
-              }}
-              segments={5}
-              width={time[2] == 'Bulan' ? 700 : Dimensions.get('window').width}
-              height={220}
-              yAxisInterval={1}
-              formatYLabel={yValue => formatNumber(parseInt(yValue))}
-              fromZero
-              renderDotContent={({x, y, indexData, index}) => (
-                <TouchableOpacity
-                  key={index}
-                  onPress={() => setShowDotIndex(null)}
-                  style={{
-                    display: showDotIndex == index ? 'flex' : 'none',
-                  }}>
-                  <DotChart {...{index, indexData, x, y}} />
-                </TouchableOpacity>
-              )}
-              onDataPointClick={({index}) => {
-                setShowDotIndex(dotIndex => (index == dotIndex ? null : index));
-              }}
-              chartConfig={{
-                backgroundColor: '#fff',
-                backgroundGradientFrom: '#fff',
-                backgroundGradientTo: '#fff',
-                decimalPlaces: 0,
-                color: (opacity = 1) => `rgba(64, 50, 250, ${opacity})`,
-                labelColor: (opacity = 1) => `rgba(50, 40, 199, ${opacity})`,
-                style: {
-                  borderRadius: 16,
-                },
-                propsForDots: {
-                  r: '4',
-                  strokeWidth: '1',
-                },
-              }}
-              bezier
-              style={
-                {
-                  // marginBottom: -10,
-                }
-              }
-            />
-          </ScrollView>
-          <Text>Hellos</Text>
-        </>
-      ) : !isObjectEmpty(totalTransaction) && !isLoading ? (
-        <PieChart
-          data={[
-            {
-              name: 'Pendapatan',
-              total: totalTransaction.sales - totalHpp,
-              color: colors.interaction,
-              legendFontColor: colors.primary,
-              legendFontSize: 15,
-            },
-            {
-              name: 'Pengeluaran',
-              total: totalTransaction.expense,
-              color: colors.err,
-              legendFontColor: colors.primary,
-              legendFontSize: 15,
-            },
-          ]}
-          width={Dimensions.get('screen').width}
-          height={250}
-          accessor={'total'}
-          backgroundColor={'transparent'}
-          chartConfig={{
-            color: (opacity = 1) => `rgba(64, 50, 250, ${opacity})`,
-            backgroundColor: '#fff',
-            backgroundGradientFrom: '#fff',
-            backgroundGradientTo: '#fff',
-            propsForLabels: {
-              fontFamily: 'SourceSansProSemiBold',
-            },
-          }}
-          paddingLeft={'15'}
-          center={[5, -5]}
-        />
-      ) : (
-        <NotFound>{`Belum ada transaksi ${
-          !time ? 'Hari' : 'periode'
-        } ini :(`}</NotFound>
-      )}
-      {!isObjectEmpty(totalTransaction) && !isLoading ? (
-        <View className="mb-4 rounded-xl mx-4 py-2 bg-border -mt-3">
-          <View className="flex-row justify-between my-1 mx-4">
+      <ScrollView>
+        <View className="my-4 rounded-lg flex-row justify-between px-3 mx-4 py-2 bg-border">
+          <View>
             <Text className="text-primary text-base font-sourceSansProSemiBold">
-              Total Pendapatan Penjualan
+              Periode
             </Text>
             <Text className="text-accent text-base font-sourceSansProSemiBold">
-              {currency(totalTransaction.sales, true)}
+              {period}
             </Text>
           </View>
-          <View className="flex-row justify-between my-1 mx-4">
-            <Text className="text-primary text-base font-sourceSansProSemiBold">
-              Total Harga Pokok
+          <TouchableOpacity
+            onPress={() => setShowModal(true)}
+            className="border border-accent rounded-lg px-2 items-center flex-row">
+            <IconEditCircle size={25} color={colors.accent} />
+            <Text className="text-accent text-base font-sourceSansProSemiBold ml-1">
+              Ubah Periode
             </Text>
-            <Text className="text-err text-base font-sourceSansProSemiBold">
-              {currency(totalHpp, true)}
-            </Text>
-          </View>
-          <View className="border-b border-b-white"></View>
-          <View className="flex-row justify-between my-1 mx-4">
-            <Text className="text-primary text-base font-sourceSansProSemiBold">
-              Total Laba
-            </Text>
-            <Text className="text-primary text-base font-sourceSansProSemiBold">
-              {currency(totalTransaction.sales - totalHpp, true)}
-            </Text>
-          </View>
-          <View className="flex-row justify-between my-1 mx-4">
-            <Text className="text-primary text-base font-sourceSansProSemiBold">
-              Total Pengeluaran
-            </Text>
-            <Text className="text-err text-base font-sourceSansProSemiBold">
-              {currency(totalTransaction.expense, true)}
-            </Text>
-          </View>
-          <View className="border-b border-b-white"></View>
-          <View className="flex-row justify-between my-1 mx-4">
-            <Text className="text-primary text-base font-sourceSansProSemiBold">
-              Total Laba Bersih
-            </Text>
-            <Text
-              className={`${
-                totalTransaction.sales - totalHpp - totalTransaction.expense > 0
-                  ? 'text-success'
-                  : 'text-err'
-              } text-base font-sourceSansProSemiBold`}>
-              {currency(
-                totalTransaction.sales - totalHpp - totalTransaction.expense,
-                true,
-              )}
-            </Text>
-          </View>
+          </TouchableOpacity>
         </View>
-      ) : null}
+        <FilterType
+          defaultTitle="Hari Ini"
+          show={true}
+          title={['Minggu Ini', 'Bulan Ini', 'Tahun Ini']}
+          types={[
+            [
+              days().startOf('week').toISOString(),
+              days().endOf('week').toISOString(),
+              'Minggu',
+            ],
+            [
+              days().startOf('month').toISOString(),
+              days().endOf('month').toISOString(),
+              'Bulan',
+            ],
+            [
+              days().startOf('year').toISOString(),
+              days().endOf('year').toISOString(),
+              'Tahun',
+            ],
+          ]}
+          {...{setType: setTime, type: time}}
+        />
+        {time?.at(2) && !isObjectEmpty(totalTransaction) && !isLoading && (
+          <View className="flex-row justify-between items-center">
+            <TouchableOpacity
+              onPress={() => setShowChart(show => !show)}
+              className="flex-row ml-5 rounded-full bg-border mt-1 self-start">
+              <View
+                className={`py-1 px-2 rounded-full ${
+                  showChart ? 'bg-interaction' : 'bg-border'
+                }`}>
+                <IconChartLine
+                  size={20}
+                  color={showChart ? 'white' : colors.interaction}
+                />
+              </View>
+              <View
+                className={`py-1 px-2 rounded-full ${
+                  showChart ? 'bg-border' : 'bg-interaction'
+                }`}>
+                <IconChartPie
+                  color={showChart ? colors.interaction : 'white'}
+                  size={20}
+                />
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => setShowFullChart(true)}
+              className={`mr-5 ${time[2] == 'Bulan' ? 'flex' : 'hidden'}`}>
+              <IconArrowsMaximize color={colors.interaction} size={24} />
+            </TouchableOpacity>
+          </View>
+        )}
+        {report &&
+        !isArrayEmpty(report.dataset) &&
+        showChart &&
+        time?.at(2) &&
+        !isLoading ? (
+          <>
+            <Text className="font-sourceSansProSemiBold mt-2 text-center text-interaction">
+              Grafik Pendapatan
+            </Text>
+            <ScrollView horizontal={true} style={{maxHeight: 250}}>
+              <LineChart
+                data={{
+                  labels: report.label,
+                  datasets: [
+                    {
+                      data: report.dataset,
+                    },
+                  ],
+                }}
+                segments={5}
+                width={
+                  time[2] == 'Bulan' ? 700 : Dimensions.get('window').width
+                }
+                height={220}
+                yAxisInterval={1}
+                formatYLabel={yValue => formatNumber(parseInt(yValue))}
+                fromZero
+                renderDotContent={({x, y, indexData, index}) => (
+                  <TouchableOpacity
+                    key={index}
+                    onPress={() => setShowDotIndex(null)}
+                    style={{
+                      display: showDotIndex == index ? 'flex' : 'none',
+                    }}>
+                    <DotChart {...{index, indexData, x, y}} />
+                  </TouchableOpacity>
+                )}
+                onDataPointClick={({index}) => {
+                  setShowDotIndex(dotIndex =>
+                    index == dotIndex ? null : index,
+                  );
+                }}
+                chartConfig={{
+                  backgroundColor: '#fff',
+                  backgroundGradientFrom: '#fff',
+                  backgroundGradientTo: '#fff',
+                  decimalPlaces: 0,
+                  color: (opacity = 1) => `rgba(64, 50, 250, ${opacity})`,
+                  labelColor: (opacity = 1) => `rgba(50, 40, 199, ${opacity})`,
+                  style: {
+                    borderRadius: 16,
+                  },
+                  propsForDots: {
+                    r: '4',
+                    strokeWidth: '1',
+                  },
+                }}
+                bezier
+                style={{
+                  paddingBottom: 15,
+                }}
+              />
+            </ScrollView>
+          </>
+        ) : !isObjectEmpty(totalTransaction) && !isLoading ? (
+          <PieChart
+            data={[
+              {
+                name: 'Pendapatan',
+                total: totalTransaction.sales - totalHpp,
+                color: colors.interaction,
+                legendFontColor: colors.primary,
+                legendFontSize: 15,
+              },
+              {
+                name: 'Pengeluaran',
+                total: totalTransaction.expense,
+                color: colors.err,
+                legendFontColor: colors.primary,
+                legendFontSize: 15,
+              },
+            ]}
+            width={Dimensions.get('screen').width}
+            height={250}
+            accessor={'total'}
+            backgroundColor={'transparent'}
+            chartConfig={{
+              color: (opacity = 1) => `rgba(64, 50, 250, ${opacity})`,
+              backgroundColor: '#fff',
+              backgroundGradientFrom: '#fff',
+              backgroundGradientTo: '#fff',
+              propsForLabels: {
+                fontFamily: 'SourceSansProSemiBold',
+              },
+            }}
+            paddingLeft={'15'}
+            center={[5, -5]}
+          />
+        ) : (
+          <NotFound>{`Belum ada transaksi ${
+            !time ? 'Hari' : 'periode'
+          } ini :(`}</NotFound>
+        )}
+        {!isObjectEmpty(totalTransaction) && !isLoading ? (
+          <View className="mb-4 rounded-xl mx-4 py-2 bg-border -mt-2">
+            <View className="flex-row justify-between my-1 mx-4">
+              <Text className="text-primary text-base font-sourceSansProSemiBold">
+                Total Pendapatan Penjualan
+              </Text>
+              <Text className="text-accent text-base font-sourceSansProSemiBold">
+                {currency(totalTransaction.sales, true)}
+              </Text>
+            </View>
+            <View className="flex-row justify-between my-1 mx-4">
+              <Text className="text-primary text-base font-sourceSansProSemiBold">
+                Total Harga Pokok
+              </Text>
+              <Text className="text-err text-base font-sourceSansProSemiBold">
+                {currency(totalHpp, true)}
+              </Text>
+            </View>
+            <View className="border-b border-b-white"></View>
+            <View className="flex-row justify-between my-1 mx-4">
+              <Text className="text-primary text-base font-sourceSansProSemiBold">
+                Total Laba
+              </Text>
+              <Text className="text-primary text-base font-sourceSansProSemiBold">
+                {currency(totalTransaction.sales - totalHpp, true)}
+              </Text>
+            </View>
+            <View className="flex-row justify-between my-1 mx-4">
+              <Text className="text-primary text-base font-sourceSansProSemiBold">
+                Total Pengeluaran
+              </Text>
+              <Text className="text-err text-base font-sourceSansProSemiBold">
+                {currency(totalTransaction.expense, true)}
+              </Text>
+            </View>
+            <View className="border-b border-b-white"></View>
+            <View className="flex-row justify-between my-1 mx-4">
+              <Text className="text-primary text-base font-sourceSansProSemiBold">
+                Total Laba Bersih
+              </Text>
+              <Text
+                className={`${
+                  totalTransaction.sales - totalHpp - totalTransaction.expense >
+                  0
+                    ? 'text-success'
+                    : 'text-err'
+                } text-base font-sourceSansProSemiBold`}>
+                {currency(
+                  totalTransaction.sales - totalHpp - totalTransaction.expense,
+                  true,
+                )}
+              </Text>
+            </View>
+          </View>
+        ) : null}
+        <View className="h-20"></View>
+      </ScrollView>
       <CalendarModal {...{setShowModal, showModal, setTime, time}} />
       <ChartFullScreen
         {...{report, setShow: setShowFullChart, show: showFullChart}}
