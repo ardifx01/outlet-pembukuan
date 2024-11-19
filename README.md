@@ -1,80 +1,139 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# OutletPembukuan
 
-# Getting Started
+![Static Badge](https://img.shields.io/badge/NodeJS-%235FA04E?style=flat-square&logo=nodedotjs&logoColor=fff)
+![Static Badge](https://img.shields.io/badge/React%20Native-61DAFB?style=flat-square&logo=react&logoColor=000)
+![Static Badge](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=fff)
+![Static Badge](https://img.shields.io/badge/NativeWind-%2306B6D4?style=flat-square&logo=tailwindcss&logoColor=fff)
+![Static Badge](https://img.shields.io/badge/Fastlane-%2300F200?style=flat-square&logo=fastlane&logoColor=fff)
 
->**Note**: Make sure you have completed the [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) instructions till "Creating a new application" step, before proceeding.
+A simple React native application to help manage and track a store's sales growth, and it's also come with debt and
+receivable recording feature
 
-## Step 1: Start the Metro Server
+## Table of Contents
 
-First, you will need to start **Metro**, the JavaScript _bundler_ that ships _with_ React Native.
+- [Overview](#Vverview)
+- [Features](#Features)
+- [Installation](#Installation)
+- [Running the App](#running-the-app)
+- [Build Instructions](#build-instruction)
 
-To start Metro, run the following command from the _root_ of your React Native project:
+## Overview
+
+This app is come with sales and expense recording, only with adding information of your product in stock feature and you
+can easily record your sales by adding your product in transaction page, it will automatically make a report that you
+can see in report page
+
+## Features
+
+- Transaction management (sales and expense)
+- Debt and Receivable management
+- Stock and Category management
+- Transaction Report Chart
+
+## Installation
+
+1. Clone this repository:
+   ```bash
+   git clone https://github.com/rixwand/outlet-pembukuan.git
+   ```
+2. Navigate to the project directory:
+   ```bash 
+   cd outlet-pembukuan
+   ```
+3. Install dependencies :
+   ```bash 
+   npm install
+   #or
+   yarn install #recomended
+   ```
+4. Set the Environment variable
+   ```dotenv
+   #Contact the dev for API URL
+    BASE_URL=
+    DEV_URL=
+   ```
+
+## Running the app
+
+### On the android
+
+   ```bash
+   yarn start
+   # or
+   npm start
+   
+   #if the app not launch run this in other terminal
+   npx react-native run-android
+   ```
+
+### On the IOS
+
+note: Since i dont have ios device i dont if it's run well in ios, good luck ;)
+
+   ```bash
+   npx react-native run-ios
+   ```
+
+## Build Instruction
+
+### Debug APK
 
 ```bash
-# using npm
-npm start
-
-# OR using Yarn
-yarn start
+react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res
 ```
-
-## Step 2: Start your Application
-
-Let Metro Bundler run in its _own_ terminal. Open a _new_ terminal from the _root_ of your React Native project. Run the following command to start your _Android_ or _iOS_ app:
-
-### For Android
 
 ```bash
-# using npm
-npm run android
-
-# OR using Yarn
-yarn android
+cd android
 ```
-
-### For iOS
 
 ```bash
-# using npm
-npm run ios
-
-# OR using Yarn
-yarn ios
+./gradlew assembleDebug
 ```
 
-If everything is set up _correctly_, you should see your new app running in your _Android Emulator_ or _iOS Simulator_ shortly provided you have set up your emulator/simulator correctly.
+APK file in `android/app/build/outputs/apk/debug/app-debug.apk`
 
-This is one way to run your app — you can also run it directly from within Android Studio and Xcode respectively.
+### Release APK
 
-## Step 3: Modifying your App
+```bash
+keytool -genkey -v -keystore outlet_pembukuan.keystore -alias myoutlet -keyalg RSA -keysize 2048 -validity 10000
+```
 
-Now that you have successfully run the app, let's modify it.
+```bash
+mv outlet_pembukuan.keystore android/app
+```
 
-1. Open `App.tsx` in your text editor of choice and edit some lines.
-2. For **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Developer Menu** (<kbd>Ctrl</kbd> + <kbd>M</kbd> (on Window and Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (on macOS)) to see your changes!
+open your `android\app\build.gradle` file and add the keystore configuration.
 
-   For **iOS**: Hit <kbd>Cmd ⌘</kbd> + <kbd>R</kbd> in your iOS Simulator to reload the app and see your changes!
+```
+android {
+....
+  signingConfigs {
+    release {
+      storeFile file('your_key_name.keystore')
+      storePassword 'your_key_store_password'
+      keyAlias 'your_key_alias'
+      keyPassword 'your_key_file_alias_password'
+    }
+  }
+  buildTypes {
+    release {
+      ....
+      signingConfig signingConfigs.release
+    }
+  }
+}
+```
 
-## Congratulations! :tada:
+```bash
+react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res
+```
 
-You've successfully run and modified your React Native App. :partying_face:
+```bash
+cd android
+```
 
-### Now what?
+```bash
+./gradlew assembleRelease
+```
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [Introduction to React Native](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you can't get this to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
-# outlet-pembukuan
+APK file in `android/app/build/outputs/apk/release/app-release.apk`
