@@ -11,7 +11,7 @@ receivable recording feature
 
 ## Table of Contents
 
-- [Overview](#Vverview)
+- [Overview](#Overview)
 - [Features](#Features)
 - [Installation](#Installation)
 - [Running the App](#running-the-app)
@@ -68,11 +68,32 @@ can see in report page
 
 ### On the IOS
 
-note: Since i dont have ios device i dont if it's run well in ios, good luck ;)
+note: Since i dont have ios device, i dont know if it's run well in ios, good luck ;)
 
    ```bash
    npx react-native run-ios
    ```
+
+## Version Management
+
+### Install the fastlane dependency
+
+```bash
+bundle install
+```
+
+### increase version
+
+```bash
+#increase patch version
+yarn bump-patch
+
+#increase minor version
+yarn bump-minor
+
+#increase major version
+yarn bump-major
+```
 
 ## Build Instruction
 

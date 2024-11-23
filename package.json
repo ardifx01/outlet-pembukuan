@@ -1,6 +1,6 @@
 {
   "name": "OutletPembukuan",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "android": "react-native run-android",
@@ -10,8 +10,7 @@
     "test": "jest",
     "bump-patch": "npm version patch --no-git-tag-version && bundle exec fastlane bump",
     "bump-minor": "npm version minor --no-git-tag-version && bundle exec fastlane bump",
-    "bump-major": "npm version major --no-git-tag-version && bundle exec fastlane bump",
-    "release-build": "react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/build/intermediates/res/merged/release/ && rm -rf android/app/src/main/res/drawable-* && rm -rf android/app/src/main/res/raw/*"
+    "bump-major": "npm version major --no-git-tag-version && bundle exec fastlane bump"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^1.22.3",
