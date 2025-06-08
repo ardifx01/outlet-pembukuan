@@ -186,6 +186,8 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({
       } else {
         config.headers.Authorization = `Bearer ${access_token}`;
       }
+      console.log('header : ', config.headers);
+      console.log('req: ', config.url);
       return config;
     },
     (error: AxiosError) => {
@@ -201,8 +203,10 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({
         ...error.config,
         _retry: false,
       } as customConfig;
-
+      console.log('retry_', originalRequest._retry);
+      console.log('req.headers', originalRequest.headers);
       if (error.status == 401 && !originalRequest._retry) {
+        // if (false) {
         originalRequest._retry = true;
         const refreshToken = await getRefreshToken();
         try {

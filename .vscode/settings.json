@@ -1,8 +1,10 @@
 {
-  "testing.openTesting": "neverOpen",
-  "jest.outputConfig": "terminal-based",
-  "jest.jestCommandLine": "yarn test",
-  "jest.rootPath": "/home/risu/Documents/Code/nodejs/reactNative/OutletPembukuan/",
-  "jest.enable": true,
-  "editor.tabSize": 3
+  // "testing.openTesting": "neverOpen",
+  // "jest.outputConfig": "terminal-based",
+  // "jest.jestCommandLine": "yarn test",
+  // "jest.rootPath": "/home/risu/Documents/Code/nodejs/reactNative/OutletPembukuan/",
+  // "jest.enable": true,
+  "editor.tabSize": 3,
+  "testing.automaticallyOpenTestResults": "neverOpen",
+  "eslint.enable": false
 }

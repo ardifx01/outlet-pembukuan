@@ -1,5 +1,7 @@
 import dayjs from 'dayjs';
 import days from '../lib/time';
+import axios from 'axios';
+import http from '../lib/axios';
 
 test('test days', () => {
   const time = '2024-06-14';
