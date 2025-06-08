@@ -9,6 +9,7 @@ import MyTabs from './src/navigation/TabNavigation';
 import AuthNavigation from './src/navigation/AuthNavigation';
 import SplashScreen from 'react-native-splash-screen';
 import Announcement from './src/components/modal/Announcement';
+import {AxiosProvider} from './src/context/AxiosProvider';
 
 const App = (): JSX.Element => {
   useEffect(() => {
@@ -29,7 +30,9 @@ const App = (): JSX.Element => {
 
 const Authentication = () => {
   const {userToken} = useContext(AuthContext) as initAuthContext;
-  return <>{userToken ? <MyTabs /> : <AuthNavigation />}</>;
+  return (
+    <AxiosProvider>{userToken ? <MyTabs /> : <AuthNavigation />}</AxiosProvider>
+  );
 };
 
 export default App;

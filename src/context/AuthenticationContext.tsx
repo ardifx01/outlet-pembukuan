@@ -5,34 +5,22 @@ import React, {
   useCallback,
   useEffect,
   useState,
-  useMemo,
 } from 'react';
 import Loading from '../components/loading';
 import {Alert} from 'react-native';
 import {
-  getAccessToken,
   getRefreshToken,
   isAccessTokenExpired,
   removeAccessToken,
   removeRefreshToken,
-  silentRefreshToken,
   storingAccessToken,
   storingRefreshToken,
 } from '../lib/token';
-import axios, {
-  AxiosError,
-  AxiosResponse,
-  InternalAxiosRequestConfig,
-  isAxiosError,
-} from 'axios';
+import axios, {isAxiosError} from 'axios';
 import {BASE_URL} from '@env';
 import http, {httpd} from '../lib/axios';
-import sessionExp from '../components/popup/sessionExp';
-import networkError from '../components/popup/networkError';
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import versionNumber from 'react-native-version-number';
-import {AnnouncementMsg} from '../components/modal/Announcement';
-import AnnouncementModal from '../components/modal/AnnouncementModal';
 
 type crendential = {
   email: string;
@@ -154,83 +142,6 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({
       // console.log(error);
     }
   }, [userToken]);
-
-  // Interceptor Axios
-
-  type customConfig = InternalAxiosRequestConfig & {_retry: boolean};
-
-  http.interceptors.request.use(
-    async (
-      config: InternalAxiosRequestConfig,
-    ): Promise<InternalAxiosRequestConfig | any> => {
-      const access_token = await getAccessToken();
-      if (!access_token || isAccessTokenExpired(access_token)) {
-        try {
-          const refreshToken = (await getRefreshToken()) as string;
-          const newToken = (await silentRefreshToken(refreshToken)) as string;
-          storingAccessToken(newToken);
-          config.headers.Authorization = `Bearer ${newToken}`;
-        } catch (error: any) {
-          const status = error.response?.status || error.status;
-          if (status == 401) {
-            setIsLoading(false);
-            logout();
-            sessionExp();
-            return Promise.reject(error);
-          }
-          if (!status) {
-            networkError();
-            return Promise.reject(error);
-          }
-        }
-      } else {
-        config.headers.Authorization = `Bearer ${access_token}`;
-      }
-      console.log('header : ', config.headers);
-      console.log('req: ', config.url);
-      return config;
-    },
-    (error: AxiosError) => {
-      return Promise.reject(error);
-    },
-  );
-  http.interceptors.response.use(
-    (response: AxiosResponse<{data: any}>) => {
-      return response;
-    },
-    async (error: AxiosError) => {
-      const originalRequest: customConfig = {
-        ...error.config,
-        _retry: false,
-      } as customConfig;
-      console.log('retry_', originalRequest._retry);
-      console.log('req.headers', originalRequest.headers);
-      if (error.status == 401 && !originalRequest._retry) {
-        // if (false) {
-        originalRequest._retry = true;
-        const refreshToken = await getRefreshToken();
-        try {
-          const newToken = await silentRefreshToken(refreshToken!);
-          storingAccessToken(newToken!);
-          originalRequest.headers.Authorization = `Bearer ${newToken}`;
-          await http(originalRequest);
-        } catch (error: any) {
-          const status = error.response?.status || error.status;
-          if (status == 401) {
-            setIsLoading(false);
-            logout();
-            sessionExp();
-            return Promise.reject(error);
-          }
-          if (!status) {
-            networkError();
-            return Promise.reject(error);
-          }
-        }
-      }
-      return Promise.reject(error);
-    },
-  );
 
   useEffect(() => {
     setError('');
