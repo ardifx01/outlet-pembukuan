@@ -34,7 +34,7 @@ can see in report page
 
 1. Clone this repository:
    ```bash
-   git clone https://github.com/rixwand/outlet-pembukuan.git
+   git clone https://github.com/ardifx01/outlet-pembukuan.git
    ```
 2. Navigate to the project directory:
    ```bash 
